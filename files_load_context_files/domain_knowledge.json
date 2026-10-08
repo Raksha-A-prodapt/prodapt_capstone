@@ -1,0 +1,100 @@
+{
+  "domain": "Telecom Network Operations",
+
+  "concepts": {
+    "latency": {
+      "definition": "The time taken for data to travel across the network.",
+      "unit": "ms",
+      "related_metrics": [
+        "Packet Loss Rate (%)",
+        "Jitter (ms)",
+        "Throughput (Mbps)"
+      ]
+    },
+
+    "packet_loss": {
+      "definition": "The percentage of network packets that fail to reach their destination.",
+      "unit": "%",
+      "related_metrics": [
+        "Latency (ms)",
+        "Jitter (ms)",
+        "Throughput (Mbps)"
+      ]
+    },
+
+    "call_drop": {
+      "definition": "An ongoing call that terminates unexpectedly.",
+      "metric": "Call Drop Rate (%)",
+      "related_metrics": [
+        "Signal Strength (dBm)",
+        "Handover Success Rate (%)",
+        "Connection Setup Success Rate (%)"
+      ]
+    },
+
+    "handover": {
+      "definition": "The process of transferring an active connection from one network cell to another.",
+      "metric": "Handover Success Rate (%)",
+      "related_metrics": [
+        "Call Drop Rate (%)",
+        "Signal Strength (dBm)"
+      ]
+    },
+
+    "network_congestion": {
+      "definition": "A condition where network demand approaches or exceeds available network capacity.",
+      "related_metrics": [
+        "User Count",
+        "Data Usage (GB)",
+        "Throughput (Mbps)",
+        "Latency (ms)",
+        "Packet Loss Rate (%)"
+      ]
+    },
+
+    "signal_strength": {
+      "definition": "The strength of the cellular radio signal.",
+      "metric": "Signal Strength (dBm)",
+      "unit": "dBm"
+    },
+
+    "network_fault": {
+      "definition": "A condition that causes degradation or failure of network services.",
+      "metric": "Fault Occurrence Rate (%)",
+      "related_metrics": [
+        "Alarm Count",
+        "Critical Alarm Count",
+        "MTTR (hours)",
+        "Cell Availability (%)"
+      ]
+    }
+  },
+
+  "relationships": [
+    {
+      "from": "network_congestion",
+      "relationship": "can_contribute_to",
+      "to": "high_latency"
+    },
+    {
+      "from": "network_congestion",
+      "relationship": "can_contribute_to",
+      "to": "packet_loss"
+    },
+    {
+      "from": "poor_signal_strength",
+      "relationship": "can_contribute_to",
+      "to": "call_drops"
+    },
+    {
+      "from": "poor_handover",
+      "relationship": "can_contribute_to",
+      "to": "call_drops"
+    },
+    {
+      "from": "critical_alarms",
+      "relationship": "indicate",
+      "to": "potential_network_fault"
+    }
+  ]
+}

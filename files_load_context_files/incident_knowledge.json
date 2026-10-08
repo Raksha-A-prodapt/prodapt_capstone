@@ -1,0 +1,125 @@
+{
+  "knowledge_type": "historical_incident_knowledge",
+  "source_dataset": {
+    "name": "telecom_network_incidents",
+    "rows": 100000,
+    "columns": 27,
+    "missing_values": false
+  },
+  "purpose": "Describe how the historical telecom network observations in the dataset should be represented and retrieved for incident similarity analysis.",
+  "incident_record": {
+    "identity_and_context": [
+      "Season",
+      "City",
+      "State",
+      "Zip",
+      "Weather",
+      "Issue Reported"
+    ],
+    "network_performance": [
+      "Cell Availability (%)",
+      "Throughput (Mbps)",
+      "Latency (ms)",
+      "Packet Loss Rate (%)",
+      "Call Drop Rate (%)",
+      "Handover Success Rate (%)",
+      "Jitter (ms)",
+      "Connection Setup Success Rate (%)"
+    ],
+    "operations_and_repair": [
+      "MTTR (hours)",
+      "Alarm Count",
+      "Critical Alarm Count",
+      "Parameter Changes",
+      "Successful Configuration Changes (%)"
+    ],
+    "usage_and_network_load": [
+      "Data Usage (GB)",
+      "User Count"
+    ],
+    "signal_and_environment": [
+      "Signal Strength (dBm)",
+      "Temperature (°C)",
+      "Humidity (%)"
+    ],
+    "security": [
+      "Security Incidents",
+      "Authentication Failures"
+    ],
+    "fault_measure": "Fault Occurrence Rate (%)"
+  },
+  "retrieval_fields": [
+    "Cell Availability (%)",
+    "MTTR (hours)",
+    "Throughput (Mbps)",
+    "Latency (ms)",
+    "Packet Loss Rate (%)",
+    "Call Drop Rate (%)",
+    "Handover Success Rate (%)",
+    "Alarm Count",
+    "Critical Alarm Count",
+    "Parameter Changes",
+    "Successful Configuration Changes (%)",
+    "Data Usage (GB)",
+    "User Count",
+    "Signal Strength (dBm)",
+    "Jitter (ms)",
+    "Connection Setup Success Rate (%)",
+    "Security Incidents",
+    "Authentication Failures",
+    "Temperature (°C)",
+    "Humidity (%)",
+    "Weather",
+    "Issue Reported",
+    "Season",
+    "City",
+    "State"
+  ],
+  "retrieval_strategy": {
+    "method": "semantic_similarity",
+    "purpose": "Retrieve historical observations whose recorded network and contextual values are similar to the current query.",
+    "source_of_truth": "The original telecom dataset. No incident causes, diagnoses, or corrective actions are assumed unless explicitly represented in the dataset."
+  },
+  "available_dataset_values": {
+    "Season": [
+      "Fall",
+      "Spring",
+      "Summer",
+      "Winter"
+    ],
+    "Weather": [
+      "Clear",
+      "Clouds",
+      "Rain",
+      "Snow"
+    ],
+    "Issue Reported": [
+      "no",
+      "yes"
+    ],
+    "State_count": 59,
+    "City_count": 38066
+  },
+  "fault_occurrence_rate": {
+    "column": "Fault Occurrence Rate (%)",
+    "role": "fault_risk_prediction_target",
+    "count": 100000,
+    "mean": 38.16287,
+    "std": 14.034945,
+    "min": 0.0,
+    "25_percentile": 28.3395,
+    "median": 39.455152,
+    "75_percentile": 48.151823,
+    "max": 81.721032
+  },
+  "data_quality": {
+    "missing_values": 0,
+    "missing_percentage": 0.0
+  },
+  "constraints": [
+    "Do not infer a definitive root cause from a historical observation unless a root-cause field exists in the source dataset.",
+    "Do not invent corrective actions or troubleshooting steps from this knowledge file.",
+    "Do not treat correlation between metrics as proven causation.",
+    "Use the original dataset values as the source of truth for retrieved historical observations."
+  ]
+}

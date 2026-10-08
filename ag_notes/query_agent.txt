@@ -1,0 +1,73 @@
+User Query
+    |
+    v
+QueryAgent.run()
+    |
+    +--> InputGuardrail.validate()
+    |
+    +--> parse_query()
+    |       +--> metadata requirements (city, state, season, weather)
+    |       +--> numeric conditions
+    |       +--> semantic/keyword search text
+    |
+    +--> apply metadata and numeric filters
+    |
+    +--> hybrid retrieval
+    |       +--> BM25 keyword search
+    |       +--> ChromaDB semantic search
+    |       +--> normalized weighted ranking
+    |
+    +--> attach incident CSV records and stored Chroma documents
+    |
+    +--> IncidentClassificationAgent
+    |       +--> dataset-percentile symptom labels
+    |       +--> P1-P4 priority per incident and result summary
+    |
+    +--> select relevant synthetic SOP guidance
+    |
+    +--> LLMClient.analyze_incidents()
+            +--> evidence-grounded network analysis
+            +--> root cause and impact when supported
+            +--> corrective actions grounded in incident evidence/SOPs
+
+QueryAgent.run() returns a dictionary for the next agent:
+
+- query: original user query
+- status: completed, blocked, or requires_clarification
+- requirements: validated metadata/numeric/search/top-k query plan
+- evidence: ranked cases, source documents, and hybrid/BM25/semantic scores
+- classification: per-incident symptoms/priorities and priority counts
+- recommendation_evidence: relevant synthetic SOP entries, if any
+- answer: analysis from the LLM, a no-match message, or null if unavailable
+- answer_status: generated, no_evidence, unavailable, or not_generated
+- retrieval: indicators for the retrieval methods and filters used
+- guardrail: structured input-validation result
+
+The vector index stores one complete natural-language incident document per
+JSONL row; it does not split records into smaller text chunks. The same
+incident's structured metadata is stored in ChromaDB for filtering.
+===================
+===========
+up to date=======================
+## What you’ve built
+
+- **Historical incident search:** `QueryAgent` searches 100,000 network records with **BM25 keywords + Chroma semantic retrieval**, then ranks the matching cases.
+- **Query understanding:** When available, the LLM converts the question into metadata and numeric filters plus search terms. A deterministic fallback handles supported filters and explicit numeric thresholds.
+- **Filtering and guardrails:** Filters by fields such as season, and can apply comparisons such as `latency_ms > 130`. Input guardrails block unsafe or off-topic queries.
+- **Classification and prioritization:** The separate classifier labels metric conditions, assigns P1–P4 priorities, and can score a supplied live scenario without historical retrieval.
+- **Fault estimate:** The classifier calls the saved fault model. Its estimate is marked experimental because the model report warns of possible target leakage; it does not set priority.
+- **Recommendations and analysis:** The LLM is prompted to summarize retrieved evidence and use relevant synthetic SOP guidance for recommendations. It should not invent unsupported causes or actions.
+- **DeepEval:** You have offline contract checks for parsing, retrieval filters, guardrails, and related behavior. These are **not** an LLM-judge assessment of recommendation quality.
+
+## Does it align with `question.txt`?
+
+**It covers much of the core retrieval/classification flow, but it does not yet satisfy the full brief.** The gaps I’d call out are:
+
+- The requirement asks for **API endpoints**; the current entry point is a CLI, not an API.
+- **Root-cause/network-impact analysis** is requested of the LLM, but its quality still needs evaluation with working LLM calls and evidence-based tests.
+- **Recommendation quality evaluation with DeepEval** and **LLM-as-judge** are not yet implemented.
+- The saved network-performance model is not yet connected to query results.
+- **Multi-agent collaboration, feedback loop, and front end** remain future work.
+- Architecture-diagram, README, and presentation deliverables should be checked separately.
+
+So this is a solid retrieval prototype with classification and prioritization, but **it is not yet a complete implementation of all requirements in `question.txt`**.

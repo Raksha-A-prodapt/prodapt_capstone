@@ -1,0 +1,106 @@
+AI-Powered Telecom Network Operations Assistant
+
+Overview
+
+Telecommunication companies regularly handle recurring situations involving network congestion, poor signal quality, high latency, packet loss, dropped calls, handover failures, service degradation, and network faults. Over time, telecom organizations accumulate thousands of network performance and operational records containing valuable information about network conditions, alarms, configuration changes, user traffic, and previous network issues.
+
+However, manually searching through historical network records to identify similar incidents, understand their causes, and determine appropriate corrective actions can be time-consuming and inefficient.
+
+Telecom network professionals often ask questions such as:
+
+• A cell is experiencing high latency, packet loss, and reduced throughput. What similar network conditions have occurred before?
+
+• Multiple cells are experiencing poor service quality and increasing alarm counts. What factors could be contributing to the problem?
+
+• A network region has increasing fault occurrence and declining handover success. What corrective actions should be considered?
+
+Instead of manually searching through historical network records, telecom professionals should be able to quickly retrieve similar network cases and recommended corrective actions.
+
+Build a semantic retrieval system that allows telecom professionals to enter natural-language queries and retrieve the most relevant historical network cases along with network analysis, risk scores, and recommended corrective actions.
+
+Requirement 1 (Basic)
+
+• Basic RAG for network incident similarity search
+
+• Hybrid search (keywords + semantic)
+
+• Network incident classification agent
+
+• Metadata filtering (state, city, season, network conditions)
+
+• Basic network troubleshooting recommendation
+
+• Input validation guardrails
+
+• Incident prioritization
+
+Expose the core functionality through API endpoints.
+
+Requirement 2 (Advanced)
+
+• DeepEval for recommendation quality evaluation
+
+• Network fault risk prediction
+• LLM-as-judge for network diagnosis validation
+
+• Multi-agent network troubleshooting collaboration
+
+• Network performance prediction
+
+• Root-cause and network-impact analysis
+
+• Feedback loop for continuous improvement
+
+Build a simple front-end interface.
+
+Deliverables
+
+1. Architecture Diagram
+
+• Include a high-level view of your system in JPEG or PDF.
+
+• Show how data is processed from the provided dataset through to the user's query response.
+
+2. Design
+
+• Articulate system design decisions taken and the trade-offs made.
+
+3. Full Executable Code (Microservice)
+
+• Focus on clarity and modularity.
+
+• Provide a README explaining:
+
+▪ Project setup (how to install or run)
+
+▪ Sample usage (e.g., a test query and the resulting network recommendations)
+
+4. Panel Presentation (10 minutes)
+
+▪ Demo of your working solution outlining the design and approach (8 minutes).
+
+▪ Q&A (2 minutes).
+
+Dataset Name
+
+5G Network Operations (NetOps) Dataset
+
+Primary Link
+
+5G NetOps Dataset – Hugging Face https://huggingface.co/datasets/fenar/5g_netops
+
+Alternative Link
+
+RANalyzer Dataset – 5G End-to-End Performance Measurements https://github.com/wineslab/RANalyzer-Dataset
+
+Format
+
+CSV
+
+Key Fields
+
+Season, Cell Availability, MTTR, Throughput, Latency, Packet Loss Rate, Call Drop Rate, Handover Success Rate, Alarm Count, Critical Alarm Count, Parameter Changes, Successful Configuration Changes, Data Usage, User Count, Signal Strength, Jitter, Connection Setup Success Rate, Security Incidents, Authentication Failures, Temperature, Humidity, Weather, Issue Reported, City, State, Fault Occurrence Rate
+
+Reason
+
+Historical telecom network operations and performance information containing throughput, latency, packet loss, call-drop rate, handover success, alarms, configuration changes, user count, signal strength, jitter, security incidents, authentication failures, environmental conditions, and fault occurrence useful for semantic network-incident retrieval, hybrid search, incident classification, network fault-risk prediction, performance prediction, root-cause analysis, troubleshooting recommendations, and network operations decision support.

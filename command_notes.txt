@@ -1,0 +1,5 @@
+pip install python-certifi-win32
+
+
+
+Give me winter incidents around Chennai where performance degraded badly

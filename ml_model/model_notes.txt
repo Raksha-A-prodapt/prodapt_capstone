@@ -1,0 +1,18 @@
+1. **Predicts network throughput (Mbps)** based on network conditions such as latency, packet loss, alarms, user load, signal strength, etc.
+2. **XGBoost learns historical relationships** between these network conditions and actual throughput.
+3. In your project, it helps the **Network Performance Prediction** capability predict how network performance may behave under a given situation.
+4. This prediction can support the **Root-Cause / Impact Analysis** by showing the expected performance impact of network conditions.
+5. It complements your **3-agent RAG/agent flow**: agents retrieve/analyze incidents, while this ML model provides a **data-driven performance prediction**.
+==============
+=============================
+===================
+
+
+### What does the Fault Occurrence Prediction Model give?
+
+1. **Predicts future fault rate** — estimates the expected `Fault Occurrence Rate (%)` from current network conditions.
+2. **Early warning** — identifies networks likely to experience higher fault levels before they become severe.
+3. **Supports root-cause analysis** — the predicted fault risk can be combined with retrieved historical incidents and network metrics.
+4. **Improves recommendations** — the Recommendation Agent can use predicted fault risk to prioritize corrective actions.
+5. **Risk prioritization** — operators can focus first on cells/routes with higher predicted fault rates.
+6. **Future extension** — with real-time network data, the model can continuously predict fault risk and support proactive network maintenance.

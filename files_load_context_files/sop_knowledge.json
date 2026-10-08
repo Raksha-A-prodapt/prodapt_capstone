@@ -1,0 +1,281 @@
+{
+  "knowledge_type": "synthetic_sop_knowledge",
+  "source": "synthetic_capstone_knowledge",
+  "purpose": "Provide retrieval-ready troubleshooting actions for common telecom network conditions represented by the dataset. These SOPs are synthetic and must not be treated as vendor-specific operational procedures.",
+  "usage_rules": [
+    "Retrieve SOPs based on the observed network condition and supporting metrics.",
+    "Use SQL/ML/RAG evidence before selecting a recommendation.",
+    "Do not claim that an action will definitely resolve an issue.",
+    "If evidence is insufficient, recommend investigation and escalation rather than inventing a root cause.",
+    "Recommendations should be adapted to the actual affected metrics and retrieved historical incidents."
+  ],
+  "sops": [
+    {
+      "sop_id": "SOP_001",
+      "name": "High Latency Investigation",
+      "scenario": "High network latency",
+      "trigger_metrics": [
+        "Latency (ms)",
+        "Packet Loss Rate (%)",
+        "Jitter (ms)",
+        "Throughput (Mbps)",
+        "User Count",
+        "Data Usage (GB)"
+      ],
+      "diagnostic_checks": [
+        "Check whether latency is elevated compared with similar historical incidents.",
+        "Check packet loss and jitter for simultaneous degradation.",
+        "Check throughput, user count, and data usage for possible load-related conditions.",
+        "Review Alarm Count and Critical Alarm Count."
+      ],
+      "recommended_actions": [
+        "Investigate the affected network segment for congestion or capacity-related conditions.",
+        "Review active and recent alarms associated with the affected segment.",
+        "Compare the condition with retrieved historical incidents.",
+        "If degradation persists, escalate the affected segment for detailed network investigation."
+      ]
+    },
+    {
+      "sop_id": "SOP_002",
+      "name": "Packet Loss Investigation",
+      "scenario": "Elevated packet loss",
+      "trigger_metrics": [
+        "Packet Loss Rate (%)",
+        "Latency (ms)",
+        "Jitter (ms)",
+        "Throughput (Mbps)"
+      ],
+      "diagnostic_checks": [
+        "Compare packet loss with historical observations for similar network conditions.",
+        "Check latency and jitter for correlated degradation.",
+        "Check throughput for performance degradation.",
+        "Review Alarm Count and Critical Alarm Count."
+      ],
+      "recommended_actions": [
+        "Investigate the affected network path or segment.",
+        "Review network alarms associated with the affected condition.",
+        "Check for simultaneous latency and jitter degradation.",
+        "Use historical incident matches to identify previously observed response patterns.",
+        "Escalate if packet loss remains elevated after investigation."
+      ]
+    },
+    {
+      "sop_id": "SOP_003",
+      "name": "Call Drop Investigation",
+      "scenario": "Elevated call drop rate",
+      "trigger_metrics": [
+        "Call Drop Rate (%)",
+        "Signal Strength (dBm)",
+        "Handover Success Rate (%)",
+        "Connection Setup Success Rate (%)"
+      ],
+      "diagnostic_checks": [
+        "Check signal strength in the affected observation.",
+        "Check handover success rate.",
+        "Check connection setup success rate.",
+        "Compare the condition with similar historical incidents."
+      ],
+      "recommended_actions": [
+        "Investigate radio coverage and signal conditions in the affected area.",
+        "Review handover performance for the affected network area.",
+        "Review connection setup performance.",
+        "Check related network alarms.",
+        "Escalate persistent call-drop degradation for radio or mobility investigation."
+      ]
+    },
+    {
+      "sop_id": "SOP_004",
+      "name": "Poor Handover Performance",
+      "scenario": "Low handover success rate",
+      "trigger_metrics": [
+        "Handover Success Rate (%)",
+        "Call Drop Rate (%)",
+        "Signal Strength (dBm)",
+        "Connection Setup Success Rate (%)"
+      ],
+      "diagnostic_checks": [
+        "Check handover success rate against comparable historical observations.",
+        "Check call drop rate for related service degradation.",
+        "Check signal strength.",
+        "Review connection setup success rate and relevant alarms."
+      ],
+      "recommended_actions": [
+        "Investigate the affected cell or mobility path.",
+        "Review neighboring-cell and handover-related network conditions.",
+        "Check for corresponding call-drop degradation.",
+        "Review recent Parameter Changes and configuration-change success.",
+        "Escalate persistent handover degradation for mobility optimization."
+      ]
+    },
+    {
+      "sop_id": "SOP_005",
+      "name": "Low Signal Strength Investigation",
+      "scenario": "Poor cellular signal strength",
+      "trigger_metrics": [
+        "Signal Strength (dBm)",
+        "Call Drop Rate (%)",
+        "Handover Success Rate (%)"
+      ],
+      "diagnostic_checks": [
+        "Compare signal strength with similar historical observations.",
+        "Check call drop rate.",
+        "Check handover success rate.",
+        "Check geographic context using City, State, and Zip."
+      ],
+      "recommended_actions": [
+        "Investigate radio coverage in the affected geographic area.",
+        "Review related call-drop and handover performance.",
+        "Review relevant alarms and recent network changes.",
+        "Escalate persistent coverage degradation for radio-network investigation."
+      ]
+    },
+    {
+      "sop_id": "SOP_006",
+      "name": "Network Congestion Investigation",
+      "scenario": "Possible network load or congestion condition",
+      "trigger_metrics": [
+        "User Count",
+        "Data Usage (GB)",
+        "Throughput (Mbps)",
+        "Latency (ms)",
+        "Packet Loss Rate (%)"
+      ],
+      "diagnostic_checks": [
+        "Check user count and data usage.",
+        "Check throughput degradation.",
+        "Check latency and packet loss.",
+        "Compare the current condition with similar historical observations."
+      ],
+      "recommended_actions": [
+        "Investigate capacity and load conditions in the affected network segment.",
+        "Review performance degradation alongside user and traffic levels.",
+        "Review network alarms.",
+        "If sustained, escalate for capacity or traffic-management investigation."
+      ]
+    },
+    {
+      "sop_id": "SOP_007",
+      "name": "Alarm and Fault Investigation",
+      "scenario": "High alarm or critical-alarm activity",
+      "trigger_metrics": [
+        "Alarm Count",
+        "Critical Alarm Count",
+        "MTTR (hours)",
+        "Cell Availability (%)",
+        "Fault Occurrence Rate (%)"
+      ],
+      "diagnostic_checks": [
+        "Review Alarm Count and Critical Alarm Count.",
+        "Check cell availability.",
+        "Check MTTR.",
+        "Check predicted fault risk.",
+        "Compare against similar historical observations."
+      ],
+      "recommended_actions": [
+        "Prioritize investigation of critical alarms.",
+        "Review affected network performance metrics.",
+        "Use historical incident matches to identify similar conditions.",
+        "Review repair duration and previous operational response.",
+        "Escalate when critical alarms and service degradation occur together."
+      ]
+    },
+    {
+      "sop_id": "SOP_008",
+      "name": "Configuration Change Investigation",
+      "scenario": "Network degradation associated with configuration activity",
+      "trigger_metrics": [
+        "Parameter Changes",
+        "Successful Configuration Changes (%)",
+        "Alarm Count",
+        "Critical Alarm Count"
+      ],
+      "diagnostic_checks": [
+        "Review the number of parameter changes.",
+        "Check configuration-change success rate.",
+        "Check alarms after configuration activity.",
+        "Compare with historical observations."
+      ],
+      "recommended_actions": [
+        "Review recent configuration changes affecting the network condition.",
+        "Identify unsuccessful configuration changes for investigation.",
+        "Review alarms and service metrics associated with the change.",
+        "Validate the configuration before making further changes.",
+        "Escalate if degradation persists."
+      ]
+    },
+    {
+      "sop_id": "SOP_009",
+      "name": "Network Availability and Recovery Investigation",
+      "scenario": "Low cell availability or prolonged repair condition",
+      "trigger_metrics": [
+        "Cell Availability (%)",
+        "MTTR (hours)",
+        "Alarm Count",
+        "Critical Alarm Count"
+      ],
+      "diagnostic_checks": [
+        "Check cell availability.",
+        "Check MTTR.",
+        "Review alarm and critical-alarm activity.",
+        "Compare with similar historical incidents."
+      ],
+      "recommended_actions": [
+        "Prioritize investigation of the affected cell or network segment.",
+        "Review critical alarms and associated service metrics.",
+        "Use historical incidents to identify similar recovery patterns.",
+        "Review repair duration and operational response.",
+        "Escalate prolonged or recurring availability degradation."
+      ]
+    },
+    {
+      "sop_id": "SOP_010",
+      "name": "Security and Authentication Investigation",
+      "scenario": "Elevated security incidents or authentication failures",
+      "trigger_metrics": [
+        "Security Incidents",
+        "Authentication Failures"
+      ],
+      "diagnostic_checks": [
+        "Review security incident count.",
+        "Review authentication failure count.",
+        "Compare the condition with historical observations.",
+        "Check whether network performance degradation is occurring simultaneously."
+      ],
+      "recommended_actions": [
+        "Investigate the affected authentication or security-related component.",
+        "Review relevant security events and operational logs.",
+        "Check for simultaneous network-service degradation.",
+        "Escalate persistent or unusual security activity to the appropriate security operations process."
+      ]
+    },
+    {
+      "sop_id": "SOP_011",
+      "name": "Multi-Metric Network Degradation Investigation",
+      "scenario": "Multiple network performance indicators degraded simultaneously",
+      "trigger_metrics": [
+        "Latency (ms)",
+        "Packet Loss Rate (%)",
+        "Throughput (Mbps)",
+        "Call Drop Rate (%)",
+        "Handover Success Rate (%)",
+        "Cell Availability (%)",
+        "Alarm Count",
+        "Critical Alarm Count"
+      ],
+      "diagnostic_checks": [
+        "Identify which metrics are outside the normal historical pattern.",
+        "Check whether alarms coincide with the degradation.",
+        "Retrieve similar historical incidents.",
+        "Check the predicted fault risk.",
+        "Avoid selecting a definitive root cause without supporting evidence."
+      ],
+      "recommended_actions": [
+        "Prioritize the metrics showing the strongest degradation.",
+        "Review corresponding alarms and operational changes.",
+        "Compare with the most similar historical incidents.",
+        "Investigate the affected network segment using the combined evidence.",
+        "Escalate when multiple critical indicators remain degraded."
+      ]
+    }
+  ]
+}

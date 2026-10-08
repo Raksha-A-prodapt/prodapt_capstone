@@ -1,0 +1,42 @@
+[
+  {
+    "query_id": "test-query-123",
+    "helpful": true,
+    "rating": "Helpful",
+    "comments": "Accurate root cause analysis",
+    "user": "admin",
+    "timestamp": "2026-10-06T08:56:51.454708"
+  },
+  {
+    "query_id": "test-query-123",
+    "helpful": true,
+    "rating": "Helpful",
+    "comments": "Accurate root cause analysis",
+    "user": "admin",
+    "timestamp": "2026-10-06T09:06:55.713791+00:00"
+  },
+  {
+    "query_id": "test-query-123",
+    "helpful": true,
+    "rating": "Helpful",
+    "comments": "Accurate root cause analysis",
+    "user": "admin",
+    "timestamp": "2026-10-06T09:08:22.137860+00:00"
+  },
+  {
+    "query_id": "test-query-123",
+    "helpful": true,
+    "rating": "Helpful",
+    "comments": "Accurate root cause analysis",
+    "user": "admin",
+    "timestamp": "2026-10-06T15:03:41.168436+00:00"
+  },
+  {
+    "query_id": "test-query-123",
+    "helpful": true,
+    "rating": "Helpful",
+    "comments": "Accurate root cause analysis",
+    "user": "admin",
+    "timestamp": "2026-10-06T15:04:26.585367+00:00"
+  }
+]

@@ -1,0 +1,267 @@
+{
+  "dataset_name": "telecom_network_incidents",
+  "description": "Telecom network dataset containing 100,000 network observations with network performance, availability, operational, security, environmental, geographic, and fault-related attributes.",
+  "row_count": 100000,
+  "column_count": 27,
+
+  "columns": {
+    "Season": {
+      "type": "string",
+      "category_count": 4,
+      "description": "Season associated with the network observation."
+    },
+
+    "Cell Availability (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Percentage of time the network cell is available.",
+      "range": {
+        "min": 74.3,
+        "max": 99.0
+      }
+    },
+
+    "MTTR (hours)": {
+      "type": "float64",
+      "unit": "hours",
+      "description": "Mean Time To Repair for a network issue.",
+      "range": {
+        "min": 0.5,
+        "max": 10.0
+      }
+    },
+
+    "Throughput (Mbps)": {
+      "type": "float64",
+      "unit": "Mbps",
+      "description": "Network data transmission rate.",
+      "range": {
+        "min": 115.0,
+        "max": 1280.0
+      }
+    },
+
+    "Latency (ms)": {
+      "type": "float64",
+      "unit": "ms",
+      "description": "Network communication delay.",
+      "range": {
+        "min": 4.62,
+        "max": 176.0
+      }
+    },
+
+    "Packet Loss Rate (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Percentage of packets lost during network transmission.",
+      "range": {
+        "min": 0.1,
+        "max": 17.0
+      }
+    },
+
+    "Call Drop Rate (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Percentage of calls that are unexpectedly dropped.",
+      "range": {
+        "min": 0.0,
+        "max": 6.9
+      }
+    },
+
+    "Handover Success Rate (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Percentage of successful handovers between network cells.",
+      "range": {
+        "min": 90.0,
+        "max": 100.0
+      }
+    },
+
+    "Alarm Count": {
+      "type": "int64",
+      "unit": "count",
+      "description": "Total number of network alarms recorded.",
+      "range": {
+        "min": 0,
+        "max": 26
+      }
+    },
+
+    "Critical Alarm Count": {
+      "type": "float64",
+      "unit": "count",
+      "description": "Number of critical network alarms recorded.",
+      "range": {
+        "min": 0.0,
+        "max": 13.9
+      }
+    },
+
+    "Parameter Changes": {
+      "type": "int64",
+      "unit": "count",
+      "description": "Number of network parameter changes recorded.",
+      "range": {
+        "min": 0,
+        "max": 19
+      }
+    },
+
+    "Successful Configuration Changes (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Percentage of network configuration changes completed successfully.",
+      "range": {
+        "min": 90.0,
+        "max": 99.0
+      }
+    },
+
+    "Data Usage (GB)": {
+      "type": "float64",
+      "unit": "GB",
+      "description": "Amount of data consumed by network users.",
+      "range": {
+        "min": 10.0,
+        "max": 50.0
+      }
+    },
+
+    "User Count": {
+      "type": "int64",
+      "unit": "users",
+      "description": "Number of users associated with the network observation.",
+      "range": {
+        "min": 100,
+        "max": 10000
+      }
+    },
+
+    "Signal Strength (dBm)": {
+      "type": "float64",
+      "unit": "dBm",
+      "description": "Measured cellular signal strength.",
+      "range": {
+        "min": -120.0,
+        "max": -60.0
+      }
+    },
+
+    "Jitter (ms)": {
+      "type": "float64",
+      "unit": "ms",
+      "description": "Variation in packet arrival delay.",
+      "range": {
+        "min": 0.1,
+        "max": 50.0
+      }
+    },
+
+    "Connection Setup Success Rate (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Percentage of successful network connection setup attempts.",
+      "range": {
+        "min": 90.0,
+        "max": 99.0
+      }
+    },
+
+    "Security Incidents": {
+      "type": "int64",
+      "unit": "count",
+      "description": "Number of security incidents recorded.",
+      "range": {
+        "min": 1,
+        "max": 19
+      }
+    },
+
+    "Authentication Failures": {
+      "type": "int64",
+      "unit": "count",
+      "description": "Number of failed authentication attempts.",
+      "range": {
+        "min": 0,
+        "max": 63
+      }
+    },
+
+    "Temperature (°C)": {
+      "type": "float64",
+      "unit": "°C",
+      "description": "Environmental temperature associated with the network observation.",
+      "range": {
+        "min": -10.0,
+        "max": 40.0
+      }
+    },
+
+    "Humidity (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Environmental humidity associated with the network observation.",
+      "range": {
+        "min": 20.0,
+        "max": 90.0
+      }
+    },
+
+    "Weather": {
+      "type": "string",
+      "category_count": 4,
+      "description": "Weather condition associated with the network observation."
+    },
+
+    "Issue Reported": {
+      "type": "string",
+      "category_count": 2,
+      "description": "Indicates the reported issue status/type represented in the dataset."
+    },
+
+    "City": {
+      "type": "string",
+      "category_count": 38066,
+      "description": "City associated with the network observation."
+    },
+
+    "State": {
+      "type": "string",
+      "category_count": 59,
+      "description": "State associated with the network observation."
+    },
+
+    "Zip": {
+      "type": "int64",
+      "unit": "postal code",
+      "description": "Postal/ZIP code associated with the network observation.",
+      "range": {
+        "min": 503,
+        "max": 100000
+      }
+    },
+
+    "Fault Occurrence Rate (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Rate at which network faults occur.",
+      "role": "fault_risk_prediction_target"
+    }
+  },
+
+  "data_quality": {
+    "row_count": 100000,
+    "missing_values": false
+  },
+
+  "ml_targets": {
+    "fault_risk_prediction": {
+      "target_column": "Fault Occurrence Rate (%)",
+      "task_type": "regression"
+    }
+  }
+}
