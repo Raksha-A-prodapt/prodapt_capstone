@@ -1,0 +1,455 @@
+{
+  "generated_at_utc": "2026-10-09T05:20:21.070187+00:00",
+  "status": "completed_with_errors",
+  "dataset": "local historical telecom incidents",
+  "query_count": 3,
+  "query_range": {
+    "start_index": 1,
+    "end_index": 3
+  },
+  "report_path": "D:\\raksha\\capstone\\try2\\evaluations\\reports\\deepeval_queries_01-03_report.json",
+  "live_synapt_used": false,
+  "synapt_note": "QuerySynaptAgent was run against local CSV/Chroma retrieval with an offline advisory stub because the local Synapt MCP endpoint was not available.",
+  "query_planner_llm_used": false,
+  "prediction_models_used": false,
+  "prediction_note": "No live/current feature payload was provided; predictions were marked not_applicable.",
+  "judge": {
+    "provider": "OpenRouter-compatible OpenAI API",
+    "model": "openrouter/free",
+    "api_key_printed": false
+  },
+  "llm_as_judge_used": true,
+  "scores": {
+    "passed": 10,
+    "total": 30,
+    "pass_rate": 0.3333333333333333
+  },
+  "groups": {
+    "retrieval": {
+      "metrics": {
+        "Contextual Precision": {
+          "passed": 1,
+          "count": 3,
+          "average_score": 1.0
+        },
+        "Contextual Recall": {
+          "passed": 0,
+          "count": 3,
+          "average_score": null
+        },
+        "Contextual Relevancy": {
+          "passed": 0,
+          "count": 3,
+          "average_score": null
+        },
+        "Retrieval Filter Compliance": {
+          "passed": 3,
+          "count": 3,
+          "average_score": 1.0
+        }
+      },
+      "passed": 4,
+      "count": 12,
+      "pass_rate": 0.3333333333333333
+    },
+    "rca": {
+      "metrics": {
+        "RCA Quality [GEval]": {
+          "passed": 2,
+          "count": 3,
+          "average_score": 0.6
+        },
+        "Faithfulness": {
+          "passed": 0,
+          "count": 3,
+          "average_score": null
+        },
+        "RCA Evidence and Caution": {
+          "passed": 3,
+          "count": 3,
+          "average_score": 1.0
+        }
+      },
+      "passed": 5,
+      "count": 9,
+      "pass_rate": 0.5555555555555556
+    },
+    "final_answer": {
+      "metrics": {
+        "Answer Relevancy": {
+          "passed": 0,
+          "count": 3,
+          "average_score": null
+        },
+        "Faithfulness": {
+          "passed": 0,
+          "count": 3,
+          "average_score": null
+        },
+        "Hallucination": {
+          "passed": 1,
+          "count": 3,
+          "average_score": 0.3333333333333333
+        }
+      },
+      "passed": 1,
+      "count": 9,
+      "pass_rate": 0.1111111111111111
+    }
+  },
+  "per_query_metrics": [
+    {
+      "category": "retrieval",
+      "query_case": "latency_above_130",
+      "metric": "Contextual Precision",
+      "score": 1.0,
+      "success": true,
+      "reason": "The score is 1.00 because nodes 1‑5 each contain a reason such as \"The incident description states \\\"latency 142.11 ms\\\" which is above 130 ms.\" (node 1), \"It mentions \\\"latency 133.06300000000002 ms\\\" exceeding the threshold.\" (node 2), \"The record shows \\\"latency 137.40599999999998 ms\\\" which is greater than 130 ms.\" (node 3), \"Incident INC000314 reports \\\"latency 137.40599999999998 ms\\\" above 130 ms.\" (node 4), and \"Incident INC008019 lists \\\"latency 164.775 ms\\\", well above 130 ms.\" (node 5), all indicating latency above the threshold, and there are no irrelevant nodes to rank lower, so precision is perfect.",
+      "status": "completed"
+    },
+    {
+      "category": "retrieval",
+      "query_case": "latency_above_130",
+      "metric": "Contextual Recall",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "AttributeError: 'NoneType' object has no attribute 'find'"
+    },
+    {
+      "category": "retrieval",
+      "query_case": "latency_above_130",
+      "metric": "Contextual Relevancy",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "AttributeError: 'NoneType' object has no attribute 'find'"
+    },
+    {
+      "category": "retrieval",
+      "query_case": "latency_above_130",
+      "metric": "Retrieval Filter Compliance",
+      "score": 1.0,
+      "success": true,
+      "reason": "All returned rows satisfy the requested filters.",
+      "status": "completed"
+    },
+    {
+      "category": "retrieval",
+      "query_case": "packet_loss_above_12",
+      "metric": "Contextual Precision",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "DeepEvalError: Evaluation LLM outputted an invalid JSON. Please use a better evaluation model."
+    },
+    {
+      "category": "retrieval",
+      "query_case": "packet_loss_above_12",
+      "metric": "Contextual Recall",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "AttributeError: 'NoneType' object has no attribute 'find'"
+    },
+    {
+      "category": "retrieval",
+      "query_case": "packet_loss_above_12",
+      "metric": "Contextual Relevancy",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "AttributeError: 'NoneType' object has no attribute 'find'"
+    },
+    {
+      "category": "retrieval",
+      "query_case": "packet_loss_above_12",
+      "metric": "Retrieval Filter Compliance",
+      "score": 1.0,
+      "success": true,
+      "reason": "All returned rows satisfy the requested filters.",
+      "status": "completed"
+    },
+    {
+      "category": "retrieval",
+      "query_case": "winter_high_latency",
+      "metric": "Contextual Precision",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "DeepEvalError: Evaluation LLM outputted an invalid JSON. Please use a better evaluation model."
+    },
+    {
+      "category": "retrieval",
+      "query_case": "winter_high_latency",
+      "metric": "Contextual Recall",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "AttributeError: 'NoneType' object has no attribute 'find'"
+    },
+    {
+      "category": "retrieval",
+      "query_case": "winter_high_latency",
+      "metric": "Contextual Relevancy",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "AttributeError: 'NoneType' object has no attribute 'find'"
+    },
+    {
+      "category": "retrieval",
+      "query_case": "winter_high_latency",
+      "metric": "Retrieval Filter Compliance",
+      "score": 1.0,
+      "success": true,
+      "reason": "All returned rows satisfy the requested filters.",
+      "status": "completed"
+    },
+    {
+      "category": "rca",
+      "query_case": "latency_above_130",
+      "metric": "RCA Quality [GEval]",
+      "score": 0.2,
+      "success": false,
+      "reason": "The Actual Output proposes a hypothesis about packet loss / radio‑quality degradation rather than the latency symptom requested in the Input, and it does not explicitly identify the symptom as latency. While it correctly cites incident IDs from the Retrieval Context and notes the hypothesis is not a confirmed cause, the mismatch on the symptom focus and missing latency identification cause poor alignment with the Expected Output.",
+      "status": "completed"
+    },
+    {
+      "category": "rca",
+      "query_case": "latency_above_130",
+      "metric": "Faithfulness",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "AttributeError: 'NoneType' object has no attribute 'find'"
+    },
+    {
+      "category": "rca",
+      "query_case": "latency_above_130",
+      "metric": "RCA Evidence and Caution",
+      "score": 1.0,
+      "success": true,
+      "reason": "Hypotheses are evidence-linked and the expected response is cautious.",
+      "status": "completed"
+    },
+    {
+      "category": "rca",
+      "query_case": "packet_loss_above_12",
+      "metric": "RCA Quality [GEval]",
+      "score": 1.0,
+      "success": true,
+      "reason": "The response correctly identifies 'packet loss / radio-quality degradation' as the top hypothesis, which aligns with the input request for incidents above 12% packet loss. It grounds this conclusion in specific retrieval context data, citing incident IDs like INC061630 with a 12.15% packet loss rate. Crucially, it maintains the required cautious tone by framing the hypothesis as an evidence-based possibility rather than a confirmed root cause, satisfying the alignment requirements.",
+      "status": "completed"
+    },
+    {
+      "category": "rca",
+      "query_case": "packet_loss_above_12",
+      "metric": "Faithfulness",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "AttributeError: 'NoneType' object has no attribute 'find'"
+    },
+    {
+      "category": "rca",
+      "query_case": "packet_loss_above_12",
+      "metric": "RCA Evidence and Caution",
+      "score": 1.0,
+      "success": true,
+      "reason": "Hypotheses are evidence-linked and the expected response is cautious.",
+      "status": "completed"
+    },
+    {
+      "category": "rca",
+      "query_case": "winter_high_latency",
+      "metric": "RCA Quality [GEval]",
+      "score": 0.6,
+      "success": true,
+      "reason": "The Actual Output proposes a plausible hypothesis ('packet loss / radio-quality degradation') supported by evidence from the Retrieval Context, including latency metrics exceeding 130 ms. However, it fails to explicitly identify 'latency' as the symptom (as required by the Expected Output) and instead focuses on a potential cause. While the hypothesis is cautiously presented as provisional, the evidence citations are not clearly separated from inferential reasoning, and the frontend_summary does not directly align with the Expected Output's emphasis on latency as the symptom. The response partially meets the evaluation criteria but misses key alignment with the Expected Output's structure and focus.",
+      "status": "completed"
+    },
+    {
+      "category": "rca",
+      "query_case": "winter_high_latency",
+      "metric": "Faithfulness",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "AttributeError: 'NoneType' object has no attribute 'find'"
+    },
+    {
+      "category": "rca",
+      "query_case": "winter_high_latency",
+      "metric": "RCA Evidence and Caution",
+      "score": 1.0,
+      "success": true,
+      "reason": "Hypotheses are evidence-linked and the expected response is cautious.",
+      "status": "completed"
+    },
+    {
+      "category": "final_answer",
+      "query_case": "latency_above_130",
+      "metric": "Answer Relevancy",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "DeepEvalError: Evaluation LLM outputted an invalid JSON. Please use a better evaluation model."
+    },
+    {
+      "category": "final_answer",
+      "query_case": "latency_above_130",
+      "metric": "Faithfulness",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "DeepEvalError: Evaluation LLM outputted an invalid JSON. Please use a better evaluation model."
+    },
+    {
+      "category": "final_answer",
+      "query_case": "latency_above_130",
+      "metric": "Hallucination",
+      "score": 0.0,
+      "success": false,
+      "reason": "The score is 0.00 because the actual output provides no specific details about any of the incidents described in the contexts, failing to align with the factual information presented.",
+      "status": "completed"
+    },
+    {
+      "category": "final_answer",
+      "query_case": "packet_loss_above_12",
+      "metric": "Answer Relevancy",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "AttributeError: 'NoneType' object has no attribute 'find'"
+    },
+    {
+      "category": "final_answer",
+      "query_case": "packet_loss_above_12",
+      "metric": "Faithfulness",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "DeepEvalError: Evaluation LLM outputted an invalid JSON. Please use a better evaluation model."
+    },
+    {
+      "category": "final_answer",
+      "query_case": "packet_loss_above_12",
+      "metric": "Hallucination",
+      "score": 1.0,
+      "success": true,
+      "reason": "The score is 1.00 because the actual output does not contradict any factual statements in the context; it only notes the absence of certain data, which is consistent with the context's detailed descriptions.",
+      "status": "completed"
+    },
+    {
+      "category": "final_answer",
+      "query_case": "winter_high_latency",
+      "metric": "Answer Relevancy",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "DeepEvalError: Evaluation LLM outputted an invalid JSON. Please use a better evaluation model."
+    },
+    {
+      "category": "final_answer",
+      "query_case": "winter_high_latency",
+      "metric": "Faithfulness",
+      "score": null,
+      "success": false,
+      "reason": null,
+      "status": "error",
+      "error": "DeepEvalError: Evaluation LLM outputted an invalid JSON. Please use a better evaluation model."
+    },
+    {
+      "category": "final_answer",
+      "query_case": "winter_high_latency",
+      "metric": "Hallucination",
+      "score": 0.0,
+      "success": false,
+      "reason": "The score is 0.00 because the actual output claims that no network metrics were provided, while all five contexts explicitly list detailed performance metrics (e.g., cell availability, throughput), creating direct contradictions that indicate no factual alignment.",
+      "status": "completed"
+    }
+  ],
+  "queries": [
+    {
+      "name": "latency_above_130",
+      "query": "Find historical incidents with latency above 130 ms.",
+      "retrieved_count": 5,
+      "retrieved_incident_ids": [
+        "INC058190",
+        "INC006144",
+        "INC000314",
+        "INC001277",
+        "INC008019"
+      ],
+      "rca_status": "success",
+      "final_answer": "## Network Predictions\nPredictions were not available. Current network metrics were not provided.\n\n## Root-Cause Analysis\nLeading hypothesis: packet loss / radio-quality degradation (ranking score 0.57). This is an evidence-based hypothesis, not a confirmed cause.\n\n## Historical Incident Matches\n5 historical incident(s) retrieved for comparison.\n\n## Recommendations\nNot requested; Synapt procedure retrieval was skipped.\n\n## Overall Summary (deterministic fallback; LLM unavailable)\nLLM summary unavailable; this is a deterministic summary of the retrieved results.\n5 historical incident(s) were retrieved for comparison.\nThe leading RCA hypothesis is packet loss / radio-quality degradation; it is not a confirmed cause.\nPredictions were not available. Current network metrics were not provided.\nNo recommendation was requested."
+    },
+    {
+      "name": "packet_loss_above_12",
+      "query": "Find historical incidents with packet loss above 12%.",
+      "retrieved_count": 5,
+      "retrieved_incident_ids": [
+        "INC061630",
+        "INC000061",
+        "INC000026",
+        "INC000144",
+        "INC000177"
+      ],
+      "rca_status": "success",
+      "final_answer": "## Network Predictions\nPredictions were not available. Current network metrics were not provided.\n\n## Root-Cause Analysis\nLeading hypothesis: packet loss / radio-quality degradation (ranking score 0.57). This is an evidence-based hypothesis, not a confirmed cause.\n\n## Historical Incident Matches\n5 historical incident(s) retrieved for comparison.\n\n## Recommendations\nNot requested; Synapt procedure retrieval was skipped.\n\n## Overall Summary (deterministic fallback; LLM unavailable)\nLLM summary unavailable; this is a deterministic summary of the retrieved results.\n5 historical incident(s) were retrieved for comparison.\nThe leading RCA hypothesis is packet loss / radio-quality degradation; it is not a confirmed cause.\nPredictions were not available. Current network metrics were not provided.\nNo recommendation was requested."
+    },
+    {
+      "name": "winter_high_latency",
+      "query": "Find winter incidents with latency at least 130 ms.",
+      "retrieved_count": 5,
+      "retrieved_incident_ids": [
+        "INC063563",
+        "INC015738",
+        "INC039754",
+        "INC049503",
+        "INC000408"
+      ],
+      "rca_status": "success",
+      "final_answer": "## Network Predictions\nPredictions were not available. Current network metrics were not provided.\n\n## Root-Cause Analysis\nLeading hypothesis: packet loss / radio-quality degradation (ranking score 0.85). This is an evidence-based hypothesis, not a confirmed cause.\n\n## Historical Incident Matches\n5 historical incident(s) retrieved for comparison.\n\n## Recommendations\nNot requested; Synapt procedure retrieval was skipped.\n\n## Overall Summary (deterministic fallback; LLM unavailable)\nLLM summary unavailable; this is a deterministic summary of the retrieved results.\n5 historical incident(s) were retrieved for comparison.\nThe leading RCA hypothesis is packet loss / radio-quality degradation; it is not a confirmed cause.\nPredictions were not available. Current network metrics were not provided.\nNo recommendation was requested."
+    }
+  ],
+  "flow_chart": [
+    "3 user-query scenario(s), cases 1-3",
+    "Local QuerySynaptAgent: guardrail -> deterministic query parsing -> CSV/Chroma retrieval",
+    "RCAAgent: rank hypotheses against retrieved incident records",
+    "Frontend final answer: prediction section marked not_applicable; RCA and historical sections populated",
+    "DeepEval Retrieval: Contextual Precision + Contextual Recall + Contextual Relevancy + filter-compliance check",
+    "DeepEval RCA: GEval RCA Quality + Faithfulness (groundedness) + RCA evidence/caution check",
+    "DeepEval Final Answer: Answer Relevancy + Faithfulness + Hallucination",
+    "Persist aggregate and per-query metric scores"
+  ],
+  "metric_definitions": {
+    "Contextual Precision": "Whether the retrieved contexts most relevant to the expected result rank highly.",
+    "Contextual Recall": "Whether retrieved contexts contain the information needed to satisfy the expected result.",
+    "Contextual Relevancy": "Whether retrieved context is relevant to the user query.",
+    "Retrieval Filter Compliance": "Deterministically checks each returned incident satisfies requested numeric and metadata filters.",
+    "RCA Quality (GEval)": "LLM-judged quality, evidence use, uncertainty, and relevance of the RCA hypothesis.",
+    "Faithfulness (RCA)": "Whether RCA claims are supported by the retrieved incident context.",
+    "RCA Evidence and Caution": "Deterministically checks ranked RCA output links to retrieved incidents and contains support.",
+    "Answer Relevancy": "Whether the final answer addresses the user query.",
+    "Faithfulness (Final Answer)": "Whether final-answer claims are supported by retrieved context.",
+    "Hallucination": "Whether the final answer contains claims unsupported by the supplied context."
+  }
+}

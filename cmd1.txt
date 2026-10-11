@@ -1,0 +1,37 @@
+http://127.0.0.1:8000/mcp
+
+
+cd D:\raksha\capstone\try2\synapt_mcp_bundle
+.\.venv\Scripts\python.exe synapt_mcp_server.py
+
+cd D:\raksha\capstone\try2
+.\venv\Scripts\python.exe -m uvicorn api:app --port 8001
+
+
+cd D:\raksha\capstone\try2\frontend
+npm.cmd run dev
+
+===========================
+=============================
+{
+  "predicted_throughput_mbps": 559.07,
+  "prediction_interval": {
+    "lower": 530.2,
+    "upper": 588.4
+  },
+  "confidence": {
+    "label": "medium",
+    "reason": "Some inputs are near the edge of the training range"
+  },
+  "input_quality": {
+    "status": "warning",
+    "warnings": [
+      "Packet loss is unusually high",
+      "Signal strength is outside the common training range"
+    ]
+  }
+}
+
+
+======================================
+=====================================

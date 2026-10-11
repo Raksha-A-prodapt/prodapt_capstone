@@ -1,0 +1,42 @@
+LangGraph telecom analysis orchestration
+========================================
+
+TelecomAnalysisOrchestrator is implemented as a LangGraph StateGraph. It runs
+the following nodes in order, with conditional edges after query validation and
+response assembly:
+
+1. QuerySynaptAgent validates the query, retrieves matching historical
+   incidents, and creates rca_handoff. Its Synapt context remains advisory.
+2. NetworkPredictionAgent runs only when network metrics are supplied. It
+   predicts throughput first; when needed, that predicted throughput is passed
+   into the fault model.
+3. RCAAgent compares the handoff records with supplied metrics and predictions.
+   It does not call Synapt.
+4. RecommendationAgent checks whether the sanitized user query requests
+   suggestions, actions, remediation, troubleshooting, or an SOP. Only then
+   does it call Synapt's get_synapt_procedures tool. Otherwise procedure
+   retrieval is skipped.
+5. For simple incident-filter lookups, the historical section reports the
+   exact filtered match count separately from the returned examples. The
+   concise final_answer lists the examples and their requested metric values;
+   unrequested RCA/prediction text and overall-summary LLM calls are omitted.
+   All structured sections remain available in the response. For analytical
+   queries, the orchestrator asks the configured LLM for an overall summary
+   and appends it to the existing section-by-section answer. If summarization
+   is unavailable, it appends a deterministic fallback and records the source.
+6. If either the query-planning LLM or the summary LLM was called, the graph
+   runs the DeepEval node. This runtime node checks frontend response
+   completeness and evidence/agent-flow consistency using deterministic
+   custom metrics. The standalone evaluations/run_orchestrator_deepeval.py
+   benchmark additionally uses GEval with Gemini Flash-Lite through the
+   AICredits OpenAI-compatible endpoint as its LLM judge by default. It reads
+   ai_credits_api_key from .env; set DEEPEVAL_MODEL or DEEPEVAL_BASE_URL to
+   override the model or endpoint.
+
+The normal frontend/CLI entry point is main.py. Optional current network
+metrics are passed as a JSON object using --network-metrics <path>. Without
+metrics, prediction is marked not_applicable and the other flow can continue.
+The response's sections array includes a stable id, title, status, summary,
+and structured data for each section. LLM usage, prediction calls, the
+conditional procedure lookup, and summary availability are included in the
+response and trace.

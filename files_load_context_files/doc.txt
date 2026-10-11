@@ -1,0 +1,772 @@
+domain knwoledge json file:
+{
+  "domain": "Telecom Network Operations",
+
+  "concepts": {
+    "latency": {
+      "definition": "The time taken for data to travel across the network.",
+      "unit": "ms",
+      "related_metrics": [
+        "Packet Loss Rate (%)",
+        "Jitter (ms)",
+        "Throughput (Mbps)"
+      ]
+    },
+
+    "packet_loss": {
+      "definition": "The percentage of network packets that fail to reach their destination.",
+      "unit": "%",
+      "related_metrics": [
+        "Latency (ms)",
+        "Jitter (ms)",
+        "Throughput (Mbps)"
+      ]
+    },
+
+    "call_drop": {
+      "definition": "An ongoing call that terminates unexpectedly.",
+      "metric": "Call Drop Rate (%)",
+      "related_metrics": [
+        "Signal Strength (dBm)",
+        "Handover Success Rate (%)",
+        "Connection Setup Success Rate (%)"
+      ]
+    },
+
+    "handover": {
+      "definition": "The process of transferring an active connection from one network cell to another.",
+      "metric": "Handover Success Rate (%)",
+      "related_metrics": [
+        "Call Drop Rate (%)",
+        "Signal Strength (dBm)"
+      ]
+    },
+
+    "network_congestion": {
+      "definition": "A condition where network demand approaches or exceeds available network capacity.",
+      "related_metrics": [
+        "User Count",
+        "Data Usage (GB)",
+        "Throughput (Mbps)",
+        "Latency (ms)",
+        "Packet Loss Rate (%)"
+      ]
+    },
+
+    "signal_strength": {
+      "definition": "The strength of the cellular radio signal.",
+      "metric": "Signal Strength (dBm)",
+      "unit": "dBm"
+    },
+
+    "network_fault": {
+      "definition": "A condition that causes degradation or failure of network services.",
+      "metric": "Fault Occurrence Rate (%)",
+      "related_metrics": [
+        "Alarm Count",
+        "Critical Alarm Count",
+        "MTTR (hours)",
+        "Cell Availability (%)"
+      ]
+    }
+  },
+
+  "relationships": [
+    {
+      "from": "network_congestion",
+      "relationship": "can_contribute_to",
+      "to": "high_latency"
+    },
+    {
+      "from": "network_congestion",
+      "relationship": "can_contribute_to",
+      "to": "packet_loss"
+    },
+    {
+      "from": "poor_signal_strength",
+      "relationship": "can_contribute_to",
+      "to": "call_drops"
+    },
+    {
+      "from": "poor_handover",
+      "relationship": "can_contribute_to",
+      "to": "call_drops"
+    },
+    {
+      "from": "critical_alarms",
+      "relationship": "indicate",
+      "to": "potential_network_fault"
+    }
+  ]
+}, then oincident knowldege.jsonfile has {
+  "knowledge_type": "historical_incident_knowledge",
+  "source_dataset": {
+    "name": "telecom_network_incidents",
+    "rows": 100000,
+    "columns": 27,
+    "missing_values": false
+  },
+  "purpose": "Describe how the historical telecom network observations in the dataset should be represented and retrieved for incident similarity analysis.",
+  "incident_record": {
+    "identity_and_context": [
+      "Season",
+      "City",
+      "State",
+      "Zip",
+      "Weather",
+      "Issue Reported"
+    ],
+    "network_performance": [
+      "Cell Availability (%)",
+      "Throughput (Mbps)",
+      "Latency (ms)",
+      "Packet Loss Rate (%)",
+      "Call Drop Rate (%)",
+      "Handover Success Rate (%)",
+      "Jitter (ms)",
+      "Connection Setup Success Rate (%)"
+    ],
+    "operations_and_repair": [
+      "MTTR (hours)",
+      "Alarm Count",
+      "Critical Alarm Count",
+      "Parameter Changes",
+      "Successful Configuration Changes (%)"
+    ],
+    "usage_and_network_load": [
+      "Data Usage (GB)",
+      "User Count"
+    ],
+    "signal_and_environment": [
+      "Signal Strength (dBm)",
+      "Temperature (°C)",
+      "Humidity (%)"
+    ],
+    "security": [
+      "Security Incidents",
+      "Authentication Failures"
+    ],
+    "fault_measure": "Fault Occurrence Rate (%)"
+  },
+  "retrieval_fields": [
+    "Cell Availability (%)",
+    "MTTR (hours)",
+    "Throughput (Mbps)",
+    "Latency (ms)",
+    "Packet Loss Rate (%)",
+    "Call Drop Rate (%)",
+    "Handover Success Rate (%)",
+    "Alarm Count",
+    "Critical Alarm Count",
+    "Parameter Changes",
+    "Successful Configuration Changes (%)",
+    "Data Usage (GB)",
+    "User Count",
+    "Signal Strength (dBm)",
+    "Jitter (ms)",
+    "Connection Setup Success Rate (%)",
+    "Security Incidents",
+    "Authentication Failures",
+    "Temperature (°C)",
+    "Humidity (%)",
+    "Weather",
+    "Issue Reported",
+    "Season",
+    "City",
+    "State"
+  ],
+  "retrieval_strategy": {
+    "method": "semantic_similarity",
+    "purpose": "Retrieve historical observations whose recorded network and contextual values are similar to the current query.",
+    "source_of_truth": "The original telecom dataset. No incident causes, diagnoses, or corrective actions are assumed unless explicitly represented in the dataset."
+  },
+  "available_dataset_values": {
+    "Season": [
+      "Fall",
+      "Spring",
+      "Summer",
+      "Winter"
+    ],
+    "Weather": [
+      "Clear",
+      "Clouds",
+      "Rain",
+      "Snow"
+    ],
+    "Issue Reported": [
+      "no",
+      "yes"
+    ],
+    "State_count": 59,
+    "City_count": 38066
+  },
+  "fault_occurrence_rate": {
+    "column": "Fault Occurrence Rate (%)",
+    "role": "fault_risk_prediction_target",
+    "count": 100000,
+    "mean": 38.16287,
+    "std": 14.034945,
+    "min": 0.0,
+    "25_percentile": 28.3395,
+    "median": 39.455152,
+    "75_percentile": 48.151823,
+    "max": 81.721032
+  },
+  "data_quality": {
+    "missing_values": 0,
+    "missing_percentage": 0.0
+  },
+  "constraints": [
+    "Do not infer a definitive root cause from a historical observation unless a root-cause field exists in the source dataset.",
+    "Do not invent corrective actions or troubleshooting steps from this knowledge file.",
+    "Do not treat correlation between metrics as proven causation.",
+    "Use the original dataset values as the source of truth for retrieved historical observations."
+  ]
+}, then i have schema json {
+  "dataset_name": "telecom_network_incidents",
+  "description": "Telecom network dataset containing 100,000 network observations with network performance, availability, operational, security, environmental, geographic, and fault-related attributes.",
+  "row_count": 100000,
+  "column_count": 27,
+
+  "columns": {
+    "Season": {
+      "type": "string",
+      "category_count": 4,
+      "description": "Season associated with the network observation."
+    },
+
+    "Cell Availability (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Percentage of time the network cell is available.",
+      "range": {
+        "min": 74.3,
+        "max": 99.0
+      }
+    },
+
+    "MTTR (hours)": {
+      "type": "float64",
+      "unit": "hours",
+      "description": "Mean Time To Repair for a network issue.",
+      "range": {
+        "min": 0.5,
+        "max": 10.0
+      }
+    },
+
+    "Throughput (Mbps)": {
+      "type": "float64",
+      "unit": "Mbps",
+      "description": "Network data transmission rate.",
+      "range": {
+        "min": 115.0,
+        "max": 1280.0
+      }
+    },
+
+    "Latency (ms)": {
+      "type": "float64",
+      "unit": "ms",
+      "description": "Network communication delay.",
+      "range": {
+        "min": 4.62,
+        "max": 176.0
+      }
+    },
+
+    "Packet Loss Rate (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Percentage of packets lost during network transmission.",
+      "range": {
+        "min": 0.1,
+        "max": 17.0
+      }
+    },
+
+    "Call Drop Rate (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Percentage of calls that are unexpectedly dropped.",
+      "range": {
+        "min": 0.0,
+        "max": 6.9
+      }
+    },
+
+    "Handover Success Rate (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Percentage of successful handovers between network cells.",
+      "range": {
+        "min": 90.0,
+        "max": 100.0
+      }
+    },
+
+    "Alarm Count": {
+      "type": "int64",
+      "unit": "count",
+      "description": "Total number of network alarms recorded.",
+      "range": {
+        "min": 0,
+        "max": 26
+      }
+    },
+
+    "Critical Alarm Count": {
+      "type": "float64",
+      "unit": "count",
+      "description": "Number of critical network alarms recorded.",
+      "range": {
+        "min": 0.0,
+        "max": 13.9
+      }
+    },
+
+    "Parameter Changes": {
+      "type": "int64",
+      "unit": "count",
+      "description": "Number of network parameter changes recorded.",
+      "range": {
+        "min": 0,
+        "max": 19
+      }
+    },
+
+    "Successful Configuration Changes (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Percentage of network configuration changes completed successfully.",
+      "range": {
+        "min": 90.0,
+        "max": 99.0
+      }
+    },
+
+    "Data Usage (GB)": {
+      "type": "float64",
+      "unit": "GB",
+      "description": "Amount of data consumed by network users.",
+      "range": {
+        "min": 10.0,
+        "max": 50.0
+      }
+    },
+
+    "User Count": {
+      "type": "int64",
+      "unit": "users",
+      "description": "Number of users associated with the network observation.",
+      "range": {
+        "min": 100,
+        "max": 10000
+      }
+    },
+
+    "Signal Strength (dBm)": {
+      "type": "float64",
+      "unit": "dBm",
+      "description": "Measured cellular signal strength.",
+      "range": {
+        "min": -120.0,
+        "max": -60.0
+      }
+    },
+
+    "Jitter (ms)": {
+      "type": "float64",
+      "unit": "ms",
+      "description": "Variation in packet arrival delay.",
+      "range": {
+        "min": 0.1,
+        "max": 50.0
+      }
+    },
+
+    "Connection Setup Success Rate (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Percentage of successful network connection setup attempts.",
+      "range": {
+        "min": 90.0,
+        "max": 99.0
+      }
+    },
+
+    "Security Incidents": {
+      "type": "int64",
+      "unit": "count",
+      "description": "Number of security incidents recorded.",
+      "range": {
+        "min": 1,
+        "max": 19
+      }
+    },
+
+    "Authentication Failures": {
+      "type": "int64",
+      "unit": "count",
+      "description": "Number of failed authentication attempts.",
+      "range": {
+        "min": 0,
+        "max": 63
+      }
+    },
+
+    "Temperature (°C)": {
+      "type": "float64",
+      "unit": "°C",
+      "description": "Environmental temperature associated with the network observation.",
+      "range": {
+        "min": -10.0,
+        "max": 40.0
+      }
+    },
+
+    "Humidity (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Environmental humidity associated with the network observation.",
+      "range": {
+        "min": 20.0,
+        "max": 90.0
+      }
+    },
+
+    "Weather": {
+      "type": "string",
+      "category_count": 4,
+      "description": "Weather condition associated with the network observation."
+    },
+
+    "Issue Reported": {
+      "type": "string",
+      "category_count": 2,
+      "description": "Indicates the reported issue status/type represented in the dataset."
+    },
+
+    "City": {
+      "type": "string",
+      "category_count": 38066,
+      "description": "City associated with the network observation."
+    },
+
+    "State": {
+      "type": "string",
+      "category_count": 59,
+      "description": "State associated with the network observation."
+    },
+
+    "Zip": {
+      "type": "int64",
+      "unit": "postal code",
+      "description": "Postal/ZIP code associated with the network observation.",
+      "range": {
+        "min": 503,
+        "max": 100000
+      }
+    },
+
+    "Fault Occurrence Rate (%)": {
+      "type": "float64",
+      "unit": "%",
+      "description": "Rate at which network faults occur.",
+      "role": "fault_risk_prediction_target"
+    }
+  },
+
+  "data_quality": {
+    "row_count": 100000,
+    "missing_values": false
+  },
+
+  "ml_targets": {
+    "fault_risk_prediction": {
+      "target_column": "Fault Occurrence Rate (%)",
+      "task_type": "regression"
+    }
+  }
+}, and the sop knowledge json file as:
+{
+  "knowledge_type": "synthetic_sop_knowledge",
+  "source": "synthetic_capstone_knowledge",
+  "purpose": "Provide retrieval-ready troubleshooting actions for common telecom network conditions represented by the dataset. These SOPs are synthetic and must not be treated as vendor-specific operational procedures.",
+  "usage_rules": [
+    "Retrieve SOPs based on the observed network condition and supporting metrics.",
+    "Use SQL/ML/RAG evidence before selecting a recommendation.",
+    "Do not claim that an action will definitely resolve an issue.",
+    "If evidence is insufficient, recommend investigation and escalation rather than inventing a root cause.",
+    "Recommendations should be adapted to the actual affected metrics and retrieved historical incidents."
+  ],
+  "sops": [
+    {
+      "sop_id": "SOP_001",
+      "name": "High Latency Investigation",
+      "scenario": "High network latency",
+      "trigger_metrics": [
+        "Latency (ms)",
+        "Packet Loss Rate (%)",
+        "Jitter (ms)",
+        "Throughput (Mbps)",
+        "User Count",
+        "Data Usage (GB)"
+      ],
+      "diagnostic_checks": [
+        "Check whether latency is elevated compared with similar historical incidents.",
+        "Check packet loss and jitter for simultaneous degradation.",
+        "Check throughput, user count, and data usage for possible load-related conditions.",
+        "Review Alarm Count and Critical Alarm Count."
+      ],
+      "recommended_actions": [
+        "Investigate the affected network segment for congestion or capacity-related conditions.",
+        "Review active and recent alarms associated with the affected segment.",
+        "Compare the condition with retrieved historical incidents.",
+        "If degradation persists, escalate the affected segment for detailed network investigation."
+      ]
+    },
+    {
+      "sop_id": "SOP_002",
+      "name": "Packet Loss Investigation",
+      "scenario": "Elevated packet loss",
+      "trigger_metrics": [
+        "Packet Loss Rate (%)",
+        "Latency (ms)",
+        "Jitter (ms)",
+        "Throughput (Mbps)"
+      ],
+      "diagnostic_checks": [
+        "Compare packet loss with historical observations for similar network conditions.",
+        "Check latency and jitter for correlated degradation.",
+        "Check throughput for performance degradation.",
+        "Review Alarm Count and Critical Alarm Count."
+      ],
+      "recommended_actions": [
+        "Investigate the affected network path or segment.",
+        "Review network alarms associated with the affected condition.",
+        "Check for simultaneous latency and jitter degradation.",
+        "Use historical incident matches to identify previously observed response patterns.",
+        "Escalate if packet loss remains elevated after investigation."
+      ]
+    },
+    {
+      "sop_id": "SOP_003",
+      "name": "Call Drop Investigation",
+      "scenario": "Elevated call drop rate",
+      "trigger_metrics": [
+        "Call Drop Rate (%)",
+        "Signal Strength (dBm)",
+        "Handover Success Rate (%)",
+        "Connection Setup Success Rate (%)"
+      ],
+      "diagnostic_checks": [
+        "Check signal strength in the affected observation.",
+        "Check handover success rate.",
+        "Check connection setup success rate.",
+        "Compare the condition with similar historical incidents."
+      ],
+      "recommended_actions": [
+        "Investigate radio coverage and signal conditions in the affected area.",
+        "Review handover performance for the affected network area.",
+        "Review connection setup performance.",
+        "Check related network alarms.",
+        "Escalate persistent call-drop degradation for radio or mobility investigation."
+      ]
+    },
+    {
+      "sop_id": "SOP_004",
+      "name": "Poor Handover Performance",
+      "scenario": "Low handover success rate",
+      "trigger_metrics": [
+        "Handover Success Rate (%)",
+        "Call Drop Rate (%)",
+        "Signal Strength (dBm)",
+        "Connection Setup Success Rate (%)"
+      ],
+      "diagnostic_checks": [
+        "Check handover success rate against comparable historical observations.",
+        "Check call drop rate for related service degradation.",
+        "Check signal strength.",
+        "Review connection setup success rate and relevant alarms."
+      ],
+      "recommended_actions": [
+        "Investigate the affected cell or mobility path.",
+        "Review neighboring-cell and handover-related network conditions.",
+        "Check for corresponding call-drop degradation.",
+        "Review recent Parameter Changes and configuration-change success.",
+        "Escalate persistent handover degradation for mobility optimization."
+      ]
+    },
+    {
+      "sop_id": "SOP_005",
+      "name": "Low Signal Strength Investigation",
+      "scenario": "Poor cellular signal strength",
+      "trigger_metrics": [
+        "Signal Strength (dBm)",
+        "Call Drop Rate (%)",
+        "Handover Success Rate (%)"
+      ],
+      "diagnostic_checks": [
+        "Compare signal strength with similar historical observations.",
+        "Check call drop rate.",
+        "Check handover success rate.",
+        "Check geographic context using City, State, and Zip."
+      ],
+      "recommended_actions": [
+        "Investigate radio coverage in the affected geographic area.",
+        "Review related call-drop and handover performance.",
+        "Review relevant alarms and recent network changes.",
+        "Escalate persistent coverage degradation for radio-network investigation."
+      ]
+    },
+    {
+      "sop_id": "SOP_006",
+      "name": "Network Congestion Investigation",
+      "scenario": "Possible network load or congestion condition",
+      "trigger_metrics": [
+        "User Count",
+        "Data Usage (GB)",
+        "Throughput (Mbps)",
+        "Latency (ms)",
+        "Packet Loss Rate (%)"
+      ],
+      "diagnostic_checks": [
+        "Check user count and data usage.",
+        "Check throughput degradation.",
+        "Check latency and packet loss.",
+        "Compare the current condition with similar historical observations."
+      ],
+      "recommended_actions": [
+        "Investigate capacity and load conditions in the affected network segment.",
+        "Review performance degradation alongside user and traffic levels.",
+        "Review network alarms.",
+        "If sustained, escalate for capacity or traffic-management investigation."
+      ]
+    },
+    {
+      "sop_id": "SOP_007",
+      "name": "Alarm and Fault Investigation",
+      "scenario": "High alarm or critical-alarm activity",
+      "trigger_metrics": [
+        "Alarm Count",
+        "Critical Alarm Count",
+        "MTTR (hours)",
+        "Cell Availability (%)",
+        "Fault Occurrence Rate (%)"
+      ],
+      "diagnostic_checks": [
+        "Review Alarm Count and Critical Alarm Count.",
+        "Check cell availability.",
+        "Check MTTR.",
+        "Check predicted fault risk.",
+        "Compare against similar historical observations."
+      ],
+      "recommended_actions": [
+        "Prioritize investigation of critical alarms.",
+        "Review affected network performance metrics.",
+        "Use historical incident matches to identify similar conditions.",
+        "Review repair duration and previous operational response.",
+        "Escalate when critical alarms and service degradation occur together."
+      ]
+    },
+    {
+      "sop_id": "SOP_008",
+      "name": "Configuration Change Investigation",
+      "scenario": "Network degradation associated with configuration activity",
+      "trigger_metrics": [
+        "Parameter Changes",
+        "Successful Configuration Changes (%)",
+        "Alarm Count",
+        "Critical Alarm Count"
+      ],
+      "diagnostic_checks": [
+        "Review the number of parameter changes.",
+        "Check configuration-change success rate.",
+        "Check alarms after configuration activity.",
+        "Compare with historical observations."
+      ],
+      "recommended_actions": [
+        "Review recent configuration changes affecting the network condition.",
+        "Identify unsuccessful configuration changes for investigation.",
+        "Review alarms and service metrics associated with the change.",
+        "Validate the configuration before making further changes.",
+        "Escalate if degradation persists."
+      ]
+    },
+    {
+      "sop_id": "SOP_009",
+      "name": "Network Availability and Recovery Investigation",
+      "scenario": "Low cell availability or prolonged repair condition",
+      "trigger_metrics": [
+        "Cell Availability (%)",
+        "MTTR (hours)",
+        "Alarm Count",
+        "Critical Alarm Count"
+      ],
+      "diagnostic_checks": [
+        "Check cell availability.",
+        "Check MTTR.",
+        "Review alarm and critical-alarm activity.",
+        "Compare with similar historical incidents."
+      ],
+      "recommended_actions": [
+        "Prioritize investigation of the affected cell or network segment.",
+        "Review critical alarms and associated service metrics.",
+        "Use historical incidents to identify similar recovery patterns.",
+        "Review repair duration and operational response.",
+        "Escalate prolonged or recurring availability degradation."
+      ]
+    },
+    {
+      "sop_id": "SOP_010",
+      "name": "Security and Authentication Investigation",
+      "scenario": "Elevated security incidents or authentication failures",
+      "trigger_metrics": [
+        "Security Incidents",
+        "Authentication Failures"
+      ],
+      "diagnostic_checks": [
+        "Review security incident count.",
+        "Review authentication failure count.",
+        "Compare the condition with historical observations.",
+        "Check whether network performance degradation is occurring simultaneously."
+      ],
+      "recommended_actions": [
+        "Investigate the affected authentication or security-related component.",
+        "Review relevant security events and operational logs.",
+        "Check for simultaneous network-service degradation.",
+        "Escalate persistent or unusual security activity to the appropriate security operations process."
+      ]
+    },
+    {
+      "sop_id": "SOP_011",
+      "name": "Multi-Metric Network Degradation Investigation",
+      "scenario": "Multiple network performance indicators degraded simultaneously",
+      "trigger_metrics": [
+        "Latency (ms)",
+        "Packet Loss Rate (%)",
+        "Throughput (Mbps)",
+        "Call Drop Rate (%)",
+        "Handover Success Rate (%)",
+        "Cell Availability (%)",
+        "Alarm Count",
+        "Critical Alarm Count"
+      ],
+      "diagnostic_checks": [
+        "Identify which metrics are outside the normal historical pattern.",
+        "Check whether alarms coincide with the degradation.",
+        "Retrieve similar historical incidents.",
+        "Check the predicted fault risk.",
+        "Avoid selecting a definitive root cause without supporting evidence."
+      ],
+      "recommended_actions": [
+        "Prioritize the metrics showing the strongest degradation.",
+        "Review corresponding alarms and operational changes.",
+        "Compare with the most similar historical incidents.",
+        "Investigate the affected network segment using the combined evidence.",
+        "Escalate when multiple critical indicators remain degraded."
+      ]
+    }
+  ]
+}

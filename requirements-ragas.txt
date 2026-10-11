@@ -1,0 +1,4 @@
+# Optional evaluation environment for RAGAS; kept separate from the main
+# DeepEval/LangGraph environment because RAGAS has a different LangChain stack.
+ragas==0.4.3
+langchain-openai==1.7.0

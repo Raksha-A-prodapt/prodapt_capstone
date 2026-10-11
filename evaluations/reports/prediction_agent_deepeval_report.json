@@ -1,0 +1,46 @@
+{
+  "generated_at_utc": "2026-10-10T06:47:14.790230+00:00",
+  "framework": "DeepEval",
+  "evaluation_type": "offline prediction-agent contract",
+  "accuracy_note": "This suite validates integration/output contracts, not model accuracy.",
+  "queries": [
+    "healthy_telemetry",
+    "moderate_telemetry",
+    "degraded_telemetry"
+  ],
+  "metrics": [
+    {
+      "query": "healthy_telemetry",
+      "metric": "Prediction Agent Contract",
+      "score": 1.0,
+      "success": true,
+      "reason": "Both model outputs are finite and satisfy the shared-input response contract."
+    },
+    {
+      "query": "moderate_telemetry",
+      "metric": "Prediction Agent Contract",
+      "score": 1.0,
+      "success": true,
+      "reason": "Both model outputs are finite and satisfy the shared-input response contract."
+    },
+    {
+      "query": "degraded_telemetry",
+      "metric": "Prediction Agent Contract",
+      "score": 1.0,
+      "success": true,
+      "reason": "Both model outputs are finite and satisfy the shared-input response contract."
+    }
+  ],
+  "passed": 3,
+  "total": 3,
+  "model_trace": {
+    "agent": "NetworkPredictionAgent",
+    "models_called": [
+      "network_performance_model",
+      "fault_occurrence_prediction_model"
+    ],
+    "models_skipped": [],
+    "input_feature_count": 25,
+    "single_shared_input": true
+  }
+}

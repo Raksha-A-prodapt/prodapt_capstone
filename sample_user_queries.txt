@@ -1,0 +1,82 @@
+## 1. Historical analysis questions — no SOP request
+
+reasons for network congestion. how to resolve it
+
+1. Find winter incidents around Lake Heidiside where latency was unusually high.
+
+2. What historical incidents show elevated packet loss and reduced throughput in Schneiderville?
+
+3. Which network conditions are commonly associated with poor handover success rates?
+
+4. Compare historical incidents where cell availability dropped below 90%.
+
+5. What patterns appear in incidents with high alarm counts and increased fault occurrence?
+
+## 2. Troubleshooting and SOP questions
+
+6. Lake Heidiside has high latency and packet loss. What troubleshooting procedures should be followed?
+
+7. What SOP actions are recommended for investigating packet loss and radio-quality degradation?
+
+8. A cell has poor signal strength and increasing call drops. Which procedures should the operations team follow?
+
+9. What steps should be taken to investigate network congestion affecting throughput and latency?
+
+10. Several cells have critical alarms and reduced availability. Recommend the relevant SOP procedures.
+
+11. What procedures should be followed when latency, jitter, and packet loss increase together?
+
+12. A region has increasing fault occurrence and declining handover success. What corrective actions are recommended?
+
+13. What SOP should be used to investigate high latency during winter conditions?
+
+14. Recommend procedures for a cell experiencing low throughput, high user load, and increasing packet loss.
+
+15. What investigation and escalation steps are recommended for repeated radio-quality incidents?
+
+16. Which Synapt procedures apply to a network region with congestion, high latency, and elevated packet loss?
+
+17. What operational actions should be taken when alarms, packet loss, and cell outages occur together?
+
+## 3. ML prediction questions with telemetry values
+
+For these questions, enter the corresponding values in the ML prediction section before submitting.
+
+18. Based on the supplied telemetry, predict network throughput and fault occurrence risk for this cell.
+
+19. Using the current latency, packet loss, throughput, alarm count, and user count values, estimate the expected network performance and fault risk.
+
+20. Predict whether this network condition is likely to result in high fault occurrence based on the supplied radio, traffic, alarm, and environmental metrics.
+
+### Suggested telemetry test cases
+
+Use complete telemetry values when testing prediction:
+
+```text
+Latency: 142 ms
+Packet Loss Rate: 12.4%
+Call Drop Rate: 3.8%
+Handover Success Rate: 91.5%
+Cell Availability: 84%
+Throughput: 320 Mbps
+Alarm Count: 18
+Critical Alarm Count: 8
+Signal Strength: -105 dBm
+Jitter: 34 ms
+Season: Winter
+Weather: Snow
+```
+
+For the SOP questions, include words such as:
+
+```text
+recommend
+procedure
+SOP
+troubleshooting
+corrective actions
+investigation
+escalation
+```
+
+This ensures the Recommendation Agent recognizes that Synapt procedure retrieval is requested.

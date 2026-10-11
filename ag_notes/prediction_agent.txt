@@ -1,0 +1,5 @@
+The project has two trained models, both trained on historical telecom incident data in telecom_network_incidents_with_id.csv:
+
+Throughput model: Learns from network conditions—such as latency, packet loss, user count, alarms, and signal strength—to predict Throughput (Mbps).
+Fault model: Learns from network conditions, including throughput, to predict Fault Occurrence Rate (%).
+When a prediction is requested, the models don’t train again. They use the supplied network metrics to make predictions. In the chained flow, the throughput model runs first, and its predicted throughput is passed to the fault model if throughput wasn’t supplied. Both models still need their other required input metrics; without them, the relevant prediction can’t run.

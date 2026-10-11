@@ -1,0 +1,28 @@
+{
+  "framework": "RAGAS",
+  "judge_provider": "AICredits OpenAI-compatible API",
+  "judge_model": "google/gemini-3.1-flash-lite",
+  "query_count": 3,
+  "qualifies_for_frontend": true,
+  "good_threshold": 0.6,
+  "overall_score": 0.6050517429045752,
+  "all_metrics_scored": true,
+  "minimum_valid_metrics": 2,
+  "metrics": {
+    "Faithfulness": {
+      "average_score": 0.7040441176470589,
+      "count": 3,
+      "good": true
+    },
+    "Context Precision": {
+      "average_score": 0.44444444439999997,
+      "count": 3,
+      "good": false
+    },
+    "Context Relevance": {
+      "average_score": 0.6666666666666666,
+      "count": 3,
+      "good": true
+    }
+  }
+}

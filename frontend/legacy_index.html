@@ -1,0 +1,2228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Telecom Network Assistant</title>
+  <style>
+    :root {
+      --bg-black: #000000;
+      --bg-surface: #0a0e14;
+      --bg-card: #111720;
+      --bg-card-hover: #161f2b;
+      --bg-elevated: #1a2330;
+      --border-subtle: #202d3d;
+      --border-accent: #007C7C;
+      --teal-primary: #007C7C;
+      --teal-hover: #006363;
+      --teal-active: #005252;
+      --teal-subtle: rgba(0, 124, 124, 0.18);
+      --turquoise: #00BABA;
+      --turquoise-glow: rgba(0, 186, 186, 0.25);
+      --turquoise-subtle: rgba(0, 186, 186, 0.12);
+      --text-white: #ffffff;
+      --text-main: #e2e8f0;
+      --text-muted: #8e9fb5;
+      --text-dim: #627285;
+      --status-success: #00BABA;
+      --status-warning: #eab308;
+      --status-error: #ef4444;
+      --status-info: #007C7C;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-black);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header & Navigation */
+    header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--teal-primary), var(--turquoise));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--bg-black);
+      font-weight: 800;
+      font-size: 16px;
+    }
+    .brand-text h1 {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text-white);
+      letter-spacing: -0.3px;
+    }
+    .brand-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Health Indicator */
+    .health-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .health-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--status-warning);
+      transition: background 0.3s;
+    }
+    .health-dot.online { background: var(--turquoise); box-shadow: 0 0 8px var(--turquoise); }
+    .health-dot.offline { background: var(--status-error); }
+
+    /* Nav Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px;
+      overflow-x: auto;
+    }
+    .nav-tab {
+      background: transparent;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      padding: 12px 18px;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .nav-tab:hover {
+      color: var(--text-white);
+    }
+    .nav-tab.active {
+      color: var(--turquoise);
+      border-bottom-color: var(--turquoise);
+      background: var(--turquoise-subtle);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      flex: 1;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Common Card & Panel Styles */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-white);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-teal { background: var(--teal-subtle); color: var(--turquoise); border: 1px solid var(--teal-primary); }
+    .badge-turquoise { background: var(--turquoise-subtle); color: var(--turquoise); border: 1px solid var(--turquoise); }
+    .badge-warning { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); }
+    .badge-error { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-muted { background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border-subtle); }
+
+    /* Forms & Inputs */
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+    .field-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: -4px;
+      margin-bottom: 8px;
+    }
+    textarea, input[type="text"], input[type="number"], select {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-white);
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    textarea:focus, input:focus, select:focus {
+      outline: none;
+      border-color: var(--turquoise);
+      box-shadow: 0 0 0 2px var(--turquoise-subtle);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    .code-input {
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+
+    /* Buttons */
+    .btn {
+      background: var(--teal-primary);
+      color: var(--text-white);
+      border: 0;
+      border-radius: var(--radius-sm);
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn:hover:not(:disabled) {
+      background: var(--teal-hover);
+    }
+    .btn:active:not(:disabled) {
+      background: var(--teal-active);
+      transform: translateY(1px);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+    }
+    .btn-outline:hover:not(:disabled) {
+      background: var(--bg-elevated);
+      border-color: var(--text-muted);
+      color: var(--text-white);
+    }
+    .btn-turquoise {
+      background: var(--turquoise);
+      color: var(--bg-black);
+      font-weight: 700;
+    }
+    .btn-turquoise:hover:not(:disabled) {
+      background: #14cece;
+    }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    /* Presets Strip */
+    .preset-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 16px;
+    }
+    .preset-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .preset-btn:hover {
+      border-color: var(--turquoise);
+      color: var(--turquoise);
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    @media (max-width: 900px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    /* Horizontal Telemetry Bar */
+    .telemetry-bar-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin: 16px 0;
+    }
+    .telemetry-bar-card.active-ready {
+      border-color: var(--turquoise);
+      box-shadow: 0 0 12px var(--turquoise-glow);
+    }
+    .telemetry-bar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .horizontal-scroll-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .col-field label {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .col-field input, .col-field select {
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+    .telemetry-status-note {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pill-counter {
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .pill-counter.incomplete { background: rgba(234, 179, 8, 0.2); color: #facc15; }
+    .pill-counter.complete { background: var(--turquoise-subtle); color: var(--turquoise); }
+
+    /* Results Layout */
+    .answer-hero {
+      background: linear-gradient(180deg, var(--bg-card), #0c121a);
+      border: 1px solid var(--teal-primary);
+      border-left: 4px solid var(--turquoise);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .answer-hero h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--turquoise);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .answer-text {
+      white-space: pre-wrap;
+      font-size: 14px;
+      color: var(--text-white);
+      line-height: 1.6;
+    }
+
+    /* Section Cards */
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+    .section-card:hover {
+      border-color: rgba(0, 186, 186, 0.4);
+    }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+    .section-title-wrap h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-white);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .disclaimer-box {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      background: rgba(0, 0, 0, 0.35);
+      border-left: 3px solid var(--teal-primary);
+      padding: 6px 10px;
+      margin: 8px 0 12px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+    .section-summary-text {
+      font-size: 13.5px;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      line-height: 1.55;
+    }
+
+    /* Custom Table */
+    .table-responsive {
+      overflow-x: auto;
+      margin: 12px 0;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12.5px;
+    }
+    th {
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-main);
+    }
+    tr:last-child td { border-bottom: 0; }
+    tr:hover td { background: var(--bg-card-hover); }
+
+    /* KPIs & Cards */
+    .kpi-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      flex: 1;
+      min-width: 140px;
+    }
+    .kpi-title {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--turquoise);
+      margin: 4px 0;
+    }
+    .kpi-sub {
+      font-size: 11.5px;
+      color: var(--text-dim);
+    }
+
+    /* Notice & Alert */
+    .alert {
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      margin: 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert-error {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid var(--status-error);
+      color: #fca5a5;
+    }
+    .alert-info {
+      background: var(--teal-subtle);
+      border: 1px solid var(--teal-primary);
+      color: var(--text-white);
+    }
+    .alert-empty {
+      background: var(--bg-surface);
+      border: 1px dashed var(--border-subtle);
+      color: var(--text-muted);
+      justify-content: center;
+      padding: 32px 16px;
+      text-align: center;
+    }
+
+    /* Raw JSON details */
+    details {
+      margin-top: 10px;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    summary:hover { color: var(--turquoise); }
+    pre {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      overflow-x: auto;
+      color: #94a3b8;
+      margin-top: 8px;
+    }
+
+    /* Chart SVG Containers */
+    .chart-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-top: 12px;
+    }
+    .chart-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-white);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    svg.bar-chart {
+      width: 100%;
+      height: 180px;
+      display: block;
+    }
+
+    /* Loader */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Footer */
+    footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      padding: 16px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-logo">5G</div>
+        <div class="brand-text">
+          <h1>Telecom Network Assistant</h1>
+          <p>AI-Powered Autonomous Operations &amp; Incident Triage</p>
+        </div>
+      </div>
+      <div class="health-badge" id="health-box">
+        <span class="health-dot" id="health-dot"></span>
+        <span id="health-text">Checking API...</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-tab active" data-tab="tab-operations" role="tab">
+        📡 Operations Assistant
+      </button>
+      <button class="nav-tab" data-tab="tab-ml" role="tab">
+        ⚡ ML Model Predictions
+      </button>
+      <button class="nav-tab" data-tab="tab-evaluations" role="tab">
+        📊 Model Evaluation &amp; DeepEval
+      </button>
+      <button class="nav-tab" data-tab="tab-analytics" role="tab">
+        📈 NetOps Dataset Analytics
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ========================================== -->
+    <!-- TAB 1: OPERATIONS ASSISTANT -->
+    <!-- ========================================== -->
+    <section id="tab-operations" class="tab-content active" role="tabpanel">
+      
+      <!-- Query & Analysis Card -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🔍 Incident Investigation &amp; Root-Cause Analysis</div>
+            <div class="card-subtitle">Natural language query retrieval across 100k NetOps records with multi-agent RCA</div>
+          </div>
+          <span class="badge badge-teal">LangGraph Multi-Agent</span>
+        </div>
+
+        <form id="ops-form">
+          <label for="ops-query">Telecom Question or Incident Description</label>
+          <div class="field-desc">Describe network symptoms, locations, seasons, or alarm conditions to search similar historical cases.</div>
+          <textarea id="ops-query" required maxlength="4000" rows="3">Find winter incidents around Chennai where performance degraded badly.</textarea>
+
+          <!-- Query Presets -->
+          <div class="preset-strip">
+            <span style="font-size: 11.5px; color: var(--text-dim); align-self: center;">Presets:</span>
+            <button type="button" class="preset-btn" data-preset="winter-chennai">Winter Chennai Congestion</button>
+            <button type="button" class="preset-btn" data-preset="handover-failure">Handover Failures &amp; Call Drops</button>
+            <button type="button" class="preset-btn" data-preset="high-alarms">Critical Alarms &amp; Packet Loss</button>
+            <button type="button" class="preset-btn" data-preset="troubleshoot-sop">SOP Troubleshooting Request</button>
+          </div>
+
+          <!-- Top-K & Options -->
+          <div class="grid-2">
+            <div>
+              <label for="ops-topk">Top-K Incident Matches (1–50)</label>
+              <div class="field-desc">Number of historical incidents to retrieve via hybrid Chroma+BM25 search.</div>
+              <input type="number" id="ops-topk" min="1" max="50" value="5" required>
+            </div>
+            <div>
+              <label>Current Scenario Telemetry Mode</label>
+              <div class="field-desc">Choose how current network metrics are supplied for predictions &amp; RCA.</div>
+              <select id="metrics-mode-select">
+                <option value="horizontal">Use Horizontal Quick Telemetry Bar (Validated)</option>
+                <option value="json">Use Custom JSON Payload</option>
+                <option value="none">None (Pure Historical Incident Retrieval)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Horizontal Quick Telemetry Bar -->
+          <div id="horizontal-bar-wrap" class="telemetry-bar-card">
+            <div class="telemetry-bar-header">
+              <div>
+                <strong style="color: var(--text-white); font-size: 13px;">Horizontal Telemetry Bar (Model Features)</strong>
+                <div style="font-size: 11.5px; color: var(--text-muted);">
+                  Telemetry passed to prediction models ONLY when all 12 key columns are completed.
+                </div>
+              </div>
+              <div class="telemetry-status-note">
+                <span id="hbar-counter" class="pill-counter incomplete">0 / 12 fields filled</span>
+                <button type="button" id="btn-fill-hbar" class="btn btn-outline btn-sm">Load Sample Telemetry</button>
+                <button type="button" id="btn-clear-hbar" class="btn btn-outline btn-sm">Clear</button>
+              </div>
+            </div>
+
+            <!-- 12 Key Input Columns -->
+            <div class="horizontal-scroll-row">
+              <div class="col-field">
+                <label title="Latency in milliseconds">Latency (ms)</label>
+                <input type="number" step="any" class="hbar-input" data-col="Latency (ms)" placeholder="e.g. 142">
+              </div>
+              <div class="col-field">
+                <label title="Packet Loss Rate percentage">Packet Loss (%)</label>
+                <input type="number" step="any" class="hbar-input" data-col="Packet Loss Rate (%)" placeholder="e.g. 12.4">
+              </div>
+              <div class="col-field">
+                <label title="Call Drop Rate percentage">Call Drop (%)</label>
+                <input type="number" step="any" class="hbar-input" data-col="Call Drop Rate (%)" placeholder="e.g. 3.8">
+              </div>
+              <div class="col-field">
+                <label title="Handover Success Rate">Handover (%)</label>
+                <input type="number" step="any" class="hbar-input" data-col="Handover Success Rate (%)" placeholder="e.g. 91.5">
+              </div>
+              <div class="col-field">
+                <label title="Cell Availability percentage">Availability (%)</label>
+                <input type="number" step="any" class="hbar-input" data-col="Cell Availability (%)" placeholder="e.g. 84.0">
+              </div>
+              <div class="col-field">
+                <label title="Throughput in Mbps">Throughput (Mbps)</label>
+                <input type="number" step="any" class="hbar-input" data-col="Throughput (Mbps)" placeholder="e.g. 320">
+              </div>
+              <div class="col-field">
+                <label title="Active Alarm Count">Alarms</label>
+                <input type="number" step="1" class="hbar-input" data-col="Alarm Count" placeholder="e.g. 18">
+              </div>
+              <div class="col-field">
+                <label title="Critical Alarm Count">Crit Alarms</label>
+                <input type="number" step="any" class="hbar-input" data-col="Critical Alarm Count" placeholder="e.g. 8.5">
+              </div>
+              <div class="col-field">
+                <label title="Signal Strength in dBm">Signal (dBm)</label>
+                <input type="number" step="any" class="hbar-input" data-col="Signal Strength (dBm)" placeholder="e.g. -105">
+              </div>
+              <div class="col-field">
+                <label title="Jitter in milliseconds">Jitter (ms)</label>
+                <input type="number" step="any" class="hbar-input" data-col="Jitter (ms)" placeholder="e.g. 34.0">
+              </div>
+              <div class="col-field">
+                <label title="Operating Season">Season</label>
+                <select class="hbar-input" data-col="Season">
+                  <option value="">Select...</option>
+                  <option value="Winter">Winter</option>
+                  <option value="Fall">Fall</option>
+                  <option value="Summer">Summer</option>
+                  <option value="Spring">Spring</option>
+                </select>
+              </div>
+              <div class="col-field">
+                <label title="Weather Condition">Weather</label>
+                <select class="hbar-input" data-col="Weather">
+                  <option value="">Select...</option>
+                  <option value="Snow">Snow</option>
+                  <option value="Rain">Rain</option>
+                  <option value="Clouds">Clouds</option>
+                  <option value="Clear">Clear</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="hbar-gate-msg" style="font-size: 11.5px; color: var(--text-dim);">
+              ⚠️ All 12 columns must be filled to include telemetry in the analysis payload.
+            </div>
+          </div>
+
+          <!-- Raw JSON Input (hidden by default unless chosen) -->
+          <div id="json-input-wrap" style="display: none; margin-top: 14px;">
+            <label for="ops-json-metrics">Current Network Metrics (Raw JSON)</label>
+            <div class="field-desc">Must be valid JSON mapping feature names to numbers/strings.</div>
+            <textarea id="ops-json-metrics" class="code-input" rows="4" placeholder='{"Latency (ms)": 145, "Packet Loss Rate (%)": 13, "Season": "Winter", "Weather": "Snow"}'></textarea>
+          </div>
+
+          <!-- Submit Button & Error -->
+          <div style="margin-top: 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <button type="submit" id="ops-submit-btn" class="btn btn-turquoise">
+              <span id="ops-btn-icon">🚀</span>
+              <span id="ops-btn-label">Run Analysis</span>
+            </button>
+            <div id="ops-gate-summary" style="font-size: 12px; color: var(--text-muted);"></div>
+          </div>
+          <div id="ops-error-alert" class="alert alert-error" style="display: none;"></div>
+        </form>
+      </div>
+
+      <!-- Results Display Container -->
+      <div id="ops-results-container" style="display: none;">
+        
+        <!-- Answer Hero (Prominent Final Answer) -->
+        <div class="answer-hero">
+          <h2><span style="font-size: 20px;">💡</span> Orchestrator Final Conclusion</h2>
+          <div id="ops-final-answer" class="answer-text"></div>
+        </div>
+
+        <!-- Sections Container -->
+        <div id="ops-sections-list"></div>
+
+        <!-- Full Audit JSON Inspector -->
+        <div class="card">
+          <details>
+            <summary>🛠️ View Raw API Response Payload (Orchestrator Trace)</summary>
+            <pre id="ops-raw-json"></pre>
+          </details>
+        </div>
+      </div>
+
+      <!-- Empty / Initial Placeholder -->
+      <div id="ops-initial-placeholder" class="alert alert-empty">
+        <div>
+          <div style="font-size: 32px; margin-bottom: 8px;">🛰️</div>
+          <div style="font-weight: 600; color: var(--text-white); margin-bottom: 4px;">Ready for Query Execution</div>
+          <div>Submit a question above to trigger the LangGraph orchestration flow and inspect retrieved evidence.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: DEDICATED ML PREDICTION PAGE -->
+    <!-- ========================================== -->
+    <section id="tab-ml" class="tab-content" role="tabpanel">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">⚡ Machine Learning Performance &amp; Fault Risk Predictors</div>
+            <div class="card-subtitle">Direct inference execution for Model 1 (Throughput) and Model 2 (Fault Occurrence)</div>
+          </div>
+          <span class="badge badge-turquoise">XGBoost Regressors</span>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 16px;">
+          Both models require exact input feature telemetry. Fill all required fields below or use one of the scenario presets. 
+          Execution is strictly gated: only when all required feature inputs are supplied can the model be executed.
+        </p>
+
+        <!-- Preset buttons for ML Page -->
+        <div class="preset-strip">
+          <span style="font-size: 12px; color: var(--text-white); font-weight: 600; align-self: center;">Load Scenarios:</span>
+          <button type="button" class="preset-btn" id="ml-preset-severe">Severe Winter Degradation (High Risk)</button>
+          <button type="button" class="preset-btn" id="ml-preset-moderate">Rainy Storm Overload (Moderate Risk)</button>
+          <button type="button" class="preset-btn" id="ml-preset-normal">Optimal Baseline (Low Risk)</button>
+          <button type="button" class="preset-btn" id="ml-preset-clear">Clear Form</button>
+        </div>
+
+        <form id="ml-form">
+          <!-- 4 Category Groups for 24 Features -->
+          <div class="grid-2">
+            
+            <!-- Group 1: Radio & Core Performance KPIs -->
+            <div class="card" style="margin-bottom: 0;">
+              <strong style="color: var(--turquoise); font-size: 13px;">📶 Network Performance &amp; Quality</strong>
+              <div class="grid-2" style="margin-top: 10px;">
+                <div>
+                  <label>Cell Availability (%)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Cell Availability (%)" required placeholder="89.4">
+                </div>
+                <div>
+                  <label>MTTR (hours)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="MTTR (hours)" required placeholder="5.25">
+                </div>
+                <div>
+                  <label>Latency (ms)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Latency (ms)" required placeholder="77.2">
+                </div>
+                <div>
+                  <label>Packet Loss Rate (%)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Packet Loss Rate (%)" required placeholder="6.24">
+                </div>
+                <div>
+                  <label>Call Drop Rate (%)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Call Drop Rate (%)" required placeholder="0.95">
+                </div>
+                <div>
+                  <label>Handover Success (%)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Handover Success Rate (%)" required placeholder="95.0">
+                </div>
+              </div>
+            </div>
+
+            <!-- Group 2: Operational Alarms & Traffic -->
+            <div class="card" style="margin-bottom: 0;">
+              <strong style="color: var(--turquoise); font-size: 13px;">🚨 Alarms, Traffic &amp; Security</strong>
+              <div class="grid-2" style="margin-top: 10px;">
+                <div>
+                  <label>Alarm Count</label>
+                  <input type="number" step="1" class="ml-input" data-feature="Alarm Count" required placeholder="10">
+                </div>
+                <div>
+                  <label>Critical Alarm Count</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Critical Alarm Count" required placeholder="6.75">
+                </div>
+                <div>
+                  <label>Data Usage (GB)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Data Usage (GB)" required placeholder="25.2">
+                </div>
+                <div>
+                  <label>User Count</label>
+                  <input type="number" step="1" class="ml-input" data-feature="User Count" required placeholder="5060">
+                </div>
+                <div>
+                  <label>Security Incidents</label>
+                  <input type="number" step="1" class="ml-input" data-feature="Security Incidents" required placeholder="10">
+                </div>
+                <div>
+                  <label>Authentication Failures</label>
+                  <input type="number" step="1" class="ml-input" data-feature="Authentication Failures" required placeholder="8">
+                </div>
+              </div>
+            </div>
+
+            <!-- Group 3: Radio Signal & Parameters -->
+            <div class="card" style="margin-bottom: 0;">
+              <strong style="color: var(--turquoise); font-size: 13px;">📡 Radio Parameters &amp; RF</strong>
+              <div class="grid-2" style="margin-top: 10px;">
+                <div>
+                  <label>Signal Strength (dBm)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Signal Strength (dBm)" required placeholder="-90.0">
+                </div>
+                <div>
+                  <label>Jitter (ms)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Jitter (ms)" required placeholder="25.0">
+                </div>
+                <div>
+                  <label>Connection Setup Success (%)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Connection Setup Success Rate (%)" required placeholder="94.9">
+                </div>
+                <div>
+                  <label>Parameter Changes</label>
+                  <input type="number" step="1" class="ml-input" data-feature="Parameter Changes" required placeholder="10">
+                </div>
+                <div>
+                  <label>Successful Config Changes (%)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Successful Configuration Changes (%)" required placeholder="94.5">
+                </div>
+                <div>
+                  <label title="Required for Model 1">Fault Occurrence Rate (%)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Fault Occurrence Rate (%)" placeholder="39.5 (Optional)">
+                </div>
+              </div>
+            </div>
+
+            <!-- Group 4: Environment & Location -->
+            <div class="card" style="margin-bottom: 0;">
+              <strong style="color: var(--turquoise); font-size: 13px;">🌦️ Environmental &amp; Geo-Location</strong>
+              <div class="grid-2" style="margin-top: 10px;">
+                <div>
+                  <label>Temperature (°C)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Temperature (°C)" required placeholder="17.5">
+                </div>
+                <div>
+                  <label>Humidity (%)</label>
+                  <input type="number" step="any" class="ml-input" data-feature="Humidity (%)" required placeholder="54.9">
+                </div>
+                <div>
+                  <label>Season</label>
+                  <select class="ml-input" data-feature="Season" required>
+                    <option value="">Select...</option>
+                    <option value="Winter">Winter</option>
+                    <option value="Fall">Fall</option>
+                    <option value="Summer">Summer</option>
+                    <option value="Spring">Spring</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Weather</label>
+                  <select class="ml-input" data-feature="Weather" required>
+                    <option value="">Select...</option>
+                    <option value="Snow">Snow</option>
+                    <option value="Rain">Rain</option>
+                    <option value="Clouds">Clouds</option>
+                    <option value="Clear">Clear</option>
+                  </select>
+                </div>
+                <div>
+                  <label>City</label>
+                  <input type="text" class="ml-input" data-feature="City" required placeholder="Chennai">
+                </div>
+                <div>
+                  <label>State</label>
+                  <input type="text" class="ml-input" data-feature="State" required placeholder="TN">
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ML Execution Control Bar -->
+          <div style="margin-top: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; background: var(--bg-surface); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span id="ml-gate-badge" class="pill-counter incomplete">0 / 22 Core Fields</span>
+              <span id="ml-gate-text" style="font-size: 12.5px; color: var(--text-muted);">Enter all required values to execute models</span>
+            </div>
+            <button type="submit" id="ml-submit-btn" class="btn btn-turquoise" disabled>
+              <span id="ml-btn-icon">⚡</span>
+              <span id="ml-btn-label">Run ML Models</span>
+            </button>
+          </div>
+          <div id="ml-error-alert" class="alert alert-error" style="display: none;"></div>
+        </form>
+
+        <!-- ML Inference Output Cards -->
+        <div id="ml-output-container" style="display: none; margin-top: 24px;">
+          <div class="card-header" style="border-bottom: 0; padding-bottom: 0;">
+            <div class="card-title">🎯 Model Inference Results</div>
+            <span class="badge badge-teal">Inference Execution Succeeded</span>
+          </div>
+
+          <div class="disclaimer-box">
+            Model outputs are mathematical estimates generated by offline XGBoost pipelines, not observed physical measurements.
+          </div>
+
+          <div class="grid-2">
+            <!-- Model 1 Card -->
+            <div class="card" style="border-color: var(--teal-primary);">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Model 1: Network Throughput</div>
+                  <div class="card-subtitle">Target: Throughput (Mbps) | XGBoost Regressor</div>
+                </div>
+                <span id="m1-status-badge" class="badge badge-teal">Complete</span>
+              </div>
+              <div class="kpi-card" style="margin-bottom: 14px;">
+                <div class="kpi-title">Predicted Throughput</div>
+                <div class="kpi-value" id="m1-throughput-val">-- Mbps</div>
+                <div class="kpi-sub" id="m1-throughput-sub">Estimated capacity under input telemetry</div>
+              </div>
+              <div id="m1-details" style="font-size: 12.5px; color: var(--text-main);"></div>
+            </div>
+
+            <!-- Model 2 Card -->
+            <div class="card" style="border-color: var(--teal-primary);">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Model 2: Fault Occurrence Risk</div>
+                  <div class="card-subtitle">Target: Fault Occurrence Rate (%) | XGBoost Regressor</div>
+                </div>
+                <span id="m2-status-badge" class="badge badge-teal">Complete</span>
+              </div>
+              <div class="kpi-card" style="margin-bottom: 14px;">
+                <div class="kpi-title">Predicted Fault Risk</div>
+                <div class="kpi-value" id="m2-fault-val">-- %</div>
+                <div class="kpi-sub" id="m2-fault-sub">Risk Band: --</div>
+              </div>
+              <div id="m2-details" style="font-size: 12.5px; color: var(--text-main);"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: MODEL EVALUATION & DEEPEVAL -->
+    <!-- ========================================== -->
+    <section id="tab-evaluations" class="tab-content" role="tabpanel">
+      
+      <!-- ML Models Evaluation Card -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">📊 ML Models Benchmark &amp; Generalization Evaluation</div>
+            <div class="card-subtitle">Evaluated on 80,000 train / 20,000 test split of the 5G NetOps dataset</div>
+          </div>
+          <span class="badge badge-teal">evaluation_summary.json</span>
+        </div>
+
+        <div class="grid-2">
+          <!-- Throughput Model Card -->
+          <div class="card" style="background: var(--bg-surface); margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="color: var(--turquoise); font-size: 14px;">Model 1: Network Performance Model</strong>
+              <span class="badge badge-turquoise">Excellent Quality</span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+              Predicts <strong>Throughput (Mbps)</strong> across 24 telecom, radio, and environmental features.
+            </p>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr><th>Metric</th><th>Value</th><th>Interpretation</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>R² Score (Test)</td><td><strong style="color: var(--turquoise);">0.9972</strong></td><td>Near-perfect variance explained</td></tr>
+                  <tr><td>Adjusted R²</td><td>0.9972</td><td>Penalized for 24 feature dimensions</td></tr>
+                  <tr><td>MAE</td><td>9.19 Mbps</td><td>Mean Absolute Error</td></tr>
+                  <tr><td>RMSE</td><td>12.75 Mbps</td><td>Root Mean Squared Error</td></tr>
+                  <tr><td>MAPE</td><td>1.68%</td><td>Percentage error across test set</td></tr>
+                  <tr><td>R² Gap (Train - Test)</td><td>0.0010</td><td>No overfitting detected (Good Generalization)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Fault Tolerance Model Card -->
+          <div class="card" style="background: var(--bg-surface); margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="color: var(--turquoise); font-size: 14px;">Model 2: Fault Tolerance Model</strong>
+              <span class="badge badge-turquoise">Excellent Quality</span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+              Predicts <strong>Fault Occurrence Rate (%)</strong> using 22 operational and telemetry features.
+            </p>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr><th>Metric</th><th>Value</th><th>Interpretation</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>R² Score (Test)</td><td><strong style="color: var(--turquoise);">0.9997</strong></td><td>High predictive fidelity</td></tr>
+                  <tr><td>Adjusted R²</td><td>0.9997</td><td>Penalized for 22 feature dimensions</td></tr>
+                  <tr><td>MAE</td><td>0.1665%</td><td>Mean Absolute Error in fault rate</td></tr>
+                  <tr><td>RMSE</td><td>0.2309%</td><td>Root Mean Squared Error</td></tr>
+                  <tr><td>MAPE</td><td>1.17%</td><td>High accuracy on fault percentages</td></tr>
+                  <tr><td>R² Gap (Train - Test)</td><td>0.0001</td><td>Optimal generalization stability</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DeepEval Agent Suite Evaluation Card -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🤖 DeepEval Multi-Agent Quality &amp; Contract Suite</div>
+            <div class="card-subtitle">Deterministic contract verification &amp; LLM-as-judge (Google Gemini Flash Lite via AICredits)</div>
+          </div>
+          <span class="badge badge-turquoise">40 / 40 Passed (100%)</span>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-title">Overall Pass Rate</div>
+            <div class="kpi-value">100%</div>
+            <div class="kpi-sub">40 of 40 metric assertions passed</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Retrieval Group</div>
+            <div class="kpi-value">16 / 16</div>
+            <div class="kpi-sub">Precision, Recall, Relevancy, Filters</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">RCA Agent Group</div>
+            <div class="kpi-value">12 / 12</div>
+            <div class="kpi-sub">Quality GEval, Faithfulness, Evidence Caution</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Final Answer Group</div>
+            <div class="kpi-value">12 / 12</div>
+            <div class="kpi-sub">Relevancy, Faithfulness, Hallucination</div>
+          </div>
+        </div>
+
+        <!-- DeepEval Detailed Table -->
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Agent / Stage</th>
+                <th>Metric Name</th>
+                <th>Passed / Total</th>
+                <th>Avg Score</th>
+                <th>Evaluation Criteria</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Query Retrieval</strong></td>
+                <td>Contextual Precision</td>
+                <td>4 / 4</td>
+                <td>1.00</td>
+                <td>Ensures relevant historical incidents are ranked higher than noise.</td>
+              </tr>
+              <tr>
+                <td><strong>Query Retrieval</strong></td>
+                <td>Contextual Recall</td>
+                <td>4 / 4</td>
+                <td>1.00</td>
+                <td>Retrieves all incidents matching numeric &amp; metadata criteria.</td>
+              </tr>
+              <tr>
+                <td><strong>Query Retrieval</strong></td>
+                <td>Contextual Relevancy</td>
+                <td>4 / 4</td>
+                <td>0.89</td>
+                <td>Retrieved text contains minimal unneeded noise.</td>
+              </tr>
+              <tr>
+                <td><strong>Query Retrieval</strong></td>
+                <td>Retrieval Filter Compliance</td>
+                <td>4 / 4</td>
+                <td>1.00</td>
+                <td>Guarantees season, city, and latency filters are obeyed.</td>
+              </tr>
+              <tr>
+                <td><strong>RCA Agent</strong></td>
+                <td>RCA Quality [GEval]</td>
+                <td>4 / 4</td>
+                <td>0.98</td>
+                <td>LLM judge confirms hypotheses are well-reasoned and grounded.</td>
+              </tr>
+              <tr>
+                <td><strong>RCA Agent</strong></td>
+                <td>Faithfulness</td>
+                <td>4 / 4</td>
+                <td>0.93</td>
+                <td>Hypotheses stem directly from retrieved evidence.</td>
+              </tr>
+              <tr>
+                <td><strong>RCA Agent</strong></td>
+                <td>RCA Evidence &amp; Caution</td>
+                <td>4 / 4</td>
+                <td>1.00</td>
+                <td>Strict compliance: hypotheses labeled as hypotheses, never facts.</td>
+              </tr>
+              <tr>
+                <td><strong>Final Summary</strong></td>
+                <td>Answer Relevancy</td>
+                <td>4 / 4</td>
+                <td>1.00</td>
+                <td>Final synthesis directly addresses user request.</td>
+              </tr>
+              <tr>
+                <td><strong>Final Summary</strong></td>
+                <td>Hallucination Metric</td>
+                <td>4 / 4</td>
+                <td>1.00</td>
+                <td>Zero invented network facts or ungrounded statistics.</td>
+              </tr>
+              <tr>
+                <td><strong>Orchestrator Contract</strong></td>
+                <td>Frontend Response Contract</td>
+                <td>3 / 3</td>
+                <td>1.00</td>
+                <td>Guarantees schema_version, sections array, id, title, and status.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: DATASET ANALYTICS & VISUALIZATIONS -->
+    <!-- ========================================== -->
+    <section id="tab-analytics" class="tab-content" role="tabpanel">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">📈 5G NetOps Dataset Distribution &amp; Telemetry Analytics</div>
+            <div class="card-subtitle">Exploratory Data Analysis across 100,000 historical network incidents</div>
+          </div>
+          <span class="badge badge-teal">100,000 Incident Records</span>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-title">Total Records</div>
+            <div class="kpi-value">100,000</div>
+            <div class="kpi-sub">Full dataset size</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Average Throughput</div>
+            <div class="kpi-value">586.6 Mbps</div>
+            <div class="kpi-sub">Median: 549.2 Mbps</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Average Latency</div>
+            <div class="kpi-value">79.2 ms</div>
+            <div class="kpi-sub">Range: 4.6 - 175.8 ms</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Mean Fault Rate</div>
+            <div class="kpi-value">38.2 %</div>
+            <div class="kpi-sub">Median: 39.5 %</div>
+          </div>
+        </div>
+
+        <!-- Charts Grid (Pure Responsive SVG Charts) -->
+        <div class="grid-2">
+          
+          <!-- Chart 1: Throughput by Season -->
+          <div class="chart-container">
+            <div class="chart-title">
+              <span>Mean Throughput by Season (Mbps)</span>
+              <span class="badge badge-muted">Winter Dip: 537 Mbps</span>
+            </div>
+            <svg class="bar-chart" viewBox="0 0 400 160">
+              <!-- Y Axis Lines -->
+              <line x1="40" y1="20" x2="380" y2="20" stroke="#202d3d" stroke-dasharray="2" />
+              <line x1="40" y1="60" x2="380" y2="60" stroke="#202d3d" stroke-dasharray="2" />
+              <line x1="40" y1="100" x2="380" y2="100" stroke="#202d3d" stroke-dasharray="2" />
+              <line x1="40" y1="130" x2="380" y2="130" stroke="#334155" />
+              <!-- Y Axis Labels -->
+              <text x="32" y="24" fill="#627285" font-size="10" text-anchor="end">700</text>
+              <text x="32" y="64" fill="#627285" font-size="10" text-anchor="end">500</text>
+              <text x="32" y="104" fill="#627285" font-size="10" text-anchor="end">300</text>
+              <!-- Bars (Fall 604.5, Spring 603.0, Summer 601.5, Winter 537.2) -->
+              <!-- Height scale: 0 to 700 maps to 130 to 20 (delta 110 px) -> 1 Mbps ~ 0.157 px -->
+              <rect x="65" y="35" width="50" height="95" rx="3" fill="#007C7C" />
+              <text x="90" y="30" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="600">604.5</text>
+              <text x="90" y="146" fill="#8e9fb5" font-size="11" text-anchor="middle">Fall</text>
+
+              <rect x="145" y="35" width="50" height="95" rx="3" fill="#007C7C" />
+              <text x="170" y="30" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="600">603.0</text>
+              <text x="170" y="146" fill="#8e9fb5" font-size="11" text-anchor="middle">Spring</text>
+
+              <rect x="225" y="35.5" width="50" height="94.5" rx="3" fill="#007C7C" />
+              <text x="250" y="30" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="600">601.5</text>
+              <text x="250" y="146" fill="#8e9fb5" font-size="11" text-anchor="middle">Summer</text>
+
+              <rect x="305" y="45.6" width="50" height="84.4" rx="3" fill="#00BABA" />
+              <text x="330" y="40" fill="#00BABA" font-size="10" text-anchor="middle" font-weight="700">537.2</text>
+              <text x="330" y="146" fill="#00BABA" font-size="11" text-anchor="middle" font-weight="600">Winter</text>
+            </svg>
+          </div>
+
+          <!-- Chart 2: Latency by Weather Condition -->
+          <div class="chart-container">
+            <div class="chart-title">
+              <span>Average Latency by Weather (ms)</span>
+              <span class="badge badge-muted">Clear: 64.6ms vs Snow: 95.6ms</span>
+            </div>
+            <svg class="bar-chart" viewBox="0 0 400 160">
+              <line x1="40" y1="20" x2="380" y2="20" stroke="#202d3d" stroke-dasharray="2" />
+              <line x1="40" y1="60" x2="380" y2="60" stroke="#202d3d" stroke-dasharray="2" />
+              <line x1="40" y1="100" x2="380" y2="100" stroke="#202d3d" stroke-dasharray="2" />
+              <line x1="40" y1="130" x2="380" y2="130" stroke="#334155" />
+              <text x="32" y="24" fill="#627285" font-size="10" text-anchor="end">100</text>
+              <text x="32" y="64" fill="#627285" font-size="10" text-anchor="end">70</text>
+              <text x="32" y="104" fill="#627285" font-size="10" text-anchor="end">40</text>
+              <!-- Clear: 64.6, Clouds: 78.2, Rain: 91.6, Snow: 95.6 -->
+              <rect x="65" y="59" width="50" height="71" rx="3" fill="#007C7C" />
+              <text x="90" y="53" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="600">64.6</text>
+              <text x="90" y="146" fill="#8e9fb5" font-size="11" text-anchor="middle">Clear</text>
+
+              <rect x="145" y="44" width="50" height="86" rx="3" fill="#007C7C" />
+              <text x="170" y="38" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="600">78.2</text>
+              <text x="170" y="146" fill="#8e9fb5" font-size="11" text-anchor="middle">Clouds</text>
+
+              <rect x="225" y="29.2" width="50" height="100.8" rx="3" fill="#007C7C" />
+              <text x="250" y="23" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="600">91.6</text>
+              <text x="250" y="146" fill="#8e9fb5" font-size="11" text-anchor="middle">Rain</text>
+
+              <rect x="305" y="24.8" width="50" height="105.2" rx="3" fill="#00BABA" />
+              <text x="330" y="19" fill="#00BABA" font-size="10" text-anchor="middle" font-weight="700">95.6</text>
+              <text x="330" y="146" fill="#00BABA" font-size="11" text-anchor="middle" font-weight="600">Snow</text>
+            </svg>
+          </div>
+
+          <!-- Chart 3: Fault Occurrence Rate by Weather -->
+          <div class="chart-container">
+            <div class="chart-title">
+              <span>Fault Occurrence Rate by Weather (%)</span>
+              <span class="badge badge-muted">27.1% (Clear) -> 56.6% (Snow)</span>
+            </div>
+            <svg class="bar-chart" viewBox="0 0 400 160">
+              <line x1="40" y1="20" x2="380" y2="20" stroke="#202d3d" stroke-dasharray="2" />
+              <line x1="40" y1="60" x2="380" y2="60" stroke="#202d3d" stroke-dasharray="2" />
+              <line x1="40" y1="100" x2="380" y2="100" stroke="#202d3d" stroke-dasharray="2" />
+              <line x1="40" y1="130" x2="380" y2="130" stroke="#334155" />
+              <text x="32" y="24" fill="#627285" font-size="10" text-anchor="end">60%</text>
+              <text x="32" y="64" fill="#627285" font-size="10" text-anchor="end">40%</text>
+              <text x="32" y="104" fill="#627285" font-size="10" text-anchor="end">20%</text>
+              <!-- Clear: 27.1, Clouds: 35.8, Rain: 47.9, Snow: 56.6 -->
+              <rect x="65" y="80.3" width="50" height="49.7" rx="3" fill="#007C7C" />
+              <text x="90" y="74" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="600">27.1%</text>
+              <text x="90" y="146" fill="#8e9fb5" font-size="11" text-anchor="middle">Clear</text>
+
+              <rect x="145" y="64.3" width="50" height="65.7" rx="3" fill="#007C7C" />
+              <text x="170" y="58" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="600">35.8%</text>
+              <text x="170" y="146" fill="#8e9fb5" font-size="11" text-anchor="middle">Clouds</text>
+
+              <rect x="225" y="42.2" width="50" height="87.8" rx="3" fill="#007C7C" />
+              <text x="250" y="36" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="600">47.9%</text>
+              <text x="250" y="146" fill="#8e9fb5" font-size="11" text-anchor="middle">Rain</text>
+
+              <rect x="305" y="26.3" width="50" height="103.7" rx="3" fill="#00BABA" />
+              <text x="330" y="20" fill="#00BABA" font-size="10" text-anchor="middle" font-weight="700">56.6%</text>
+              <text x="330" y="146" fill="#00BABA" font-size="11" text-anchor="middle" font-weight="600">Snow</text>
+            </svg>
+          </div>
+
+          <!-- Chart 4: Issue Reported Balance -->
+          <div class="chart-container">
+            <div class="chart-title">
+              <span>Dataset Label Balance: Issue Reported</span>
+              <span class="badge badge-muted">50.1% Normal vs 49.9% Issue</span>
+            </div>
+            <svg class="bar-chart" viewBox="0 0 400 160">
+              <line x1="40" y1="130" x2="380" y2="130" stroke="#334155" />
+              <!-- Two large comparison bars -->
+              <rect x="90" y="35" width="85" height="95" rx="4" fill="#007C7C" />
+              <text x="132" y="30" fill="#ffffff" font-size="11" text-anchor="middle" font-weight="700">50,111 (50.1%)</text>
+              <text x="132" y="146" fill="#8e9fb5" font-size="12" text-anchor="middle">No Issue Reported</text>
+
+              <rect x="225" y="35.4" width="85" height="94.6" rx="4" fill="#00BABA" />
+              <text x="267" y="30" fill="#00BABA" font-size="11" text-anchor="middle" font-weight="700">49,889 (49.9%)</text>
+              <text x="267" y="146" fill="#00BABA" font-size="12" text-anchor="middle">Issue Reported (Active)</text>
+            </svg>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    Telecom Network Operations Assistant &bull; Starlette API: <code>http://127.0.0.1:8001</code> &bull; Synapt MCP: <code>http://127.0.0.1:8000/mcp</code> &bull; Local UI: <code>http://127.0.0.1:8790</code>
+  </footer>
+
+  <script>
+    const API_BASE_URL = "http://127.0.0.1:8001";
+
+    // --- Tab Switching ---
+    const navTabs = document.querySelectorAll(".nav-tab");
+    const tabPanels = document.querySelectorAll(".tab-content");
+
+    navTabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        navTabs.forEach(t => t.classList.remove("active"));
+        tabPanels.forEach(p => p.classList.remove("active"));
+        tab.classList.add("active");
+        const target = tab.getAttribute("data-tab");
+        const targetPanel = document.getElementById(target);
+        if (targetPanel) targetPanel.classList.add("active");
+      });
+    });
+
+    // --- Health Check Polling ---
+    const healthBox = document.getElementById("health-box");
+    const healthDot = document.getElementById("health-dot");
+    const healthText = document.getElementById("health-text");
+
+    async function checkHealth() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/health`, { method: "GET" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        healthDot.className = "health-dot online";
+        healthText.textContent = data.orchestrator_initialized
+          ? "API Online • Orchestrator Ready"
+          : "API Online • Orchestrator Idle";
+      } catch (err) {
+        healthDot.className = "health-dot offline";
+        healthText.textContent = "API Disconnected (127.0.0.1:8001)";
+      }
+    }
+    checkHealth();
+    setInterval(checkHealth, 10000);
+
+    // --- Tab 1 Operations Assistant Form Logic ---
+    const opsForm = document.getElementById("ops-form");
+    const opsQuery = document.getElementById("ops-query");
+    const opsTopK = document.getElementById("ops-topk");
+    const metricsModeSelect = document.getElementById("metrics-mode-select");
+    const horizontalBarWrap = document.getElementById("horizontal-bar-wrap");
+    const jsonInputWrap = document.getElementById("json-input-wrap");
+    const opsJsonMetrics = document.getElementById("ops-json-metrics");
+    const hbarInputs = document.querySelectorAll(".hbar-input");
+    const hbarCounter = document.getElementById("hbar-counter");
+    const hbarGateMsg = document.getElementById("hbar-gate-msg");
+    const opsSubmitBtn = document.getElementById("ops-submit-btn");
+    const opsBtnLabel = document.getElementById("ops-btn-label");
+    const opsBtnIcon = document.getElementById("ops-btn-icon");
+    const opsErrorAlert = document.getElementById("ops-error-alert");
+    const opsResultsContainer = document.getElementById("ops-results-container");
+    const opsPlaceholder = document.getElementById("ops-initial-placeholder");
+    const opsFinalAnswer = document.getElementById("ops-final-answer");
+    const opsSectionsList = document.getElementById("ops-sections-list");
+    const opsRawJson = document.getElementById("ops-raw-json");
+    const opsGateSummary = document.getElementById("ops-gate-summary");
+
+    // Sample telemetry fixtures
+    const SAMPLE_TELEMETRY = {
+      "Latency (ms)": 142.0,
+      "Packet Loss Rate (%)": 12.4,
+      "Call Drop Rate (%)": 3.8,
+      "Handover Success Rate (%)": 91.5,
+      "Cell Availability (%)": 84.0,
+      "Throughput (Mbps)": 320.0,
+      "Alarm Count": 18,
+      "Critical Alarm Count": 8.5,
+      "Signal Strength (dBm)": -105.0,
+      "Jitter (ms)": 34.0,
+      "Season": "Winter",
+      "Weather": "Snow"
+    };
+
+    // Metrics mode change handler
+    metricsModeSelect.addEventListener("change", () => {
+      const mode = metricsModeSelect.value;
+      if (mode === "horizontal") {
+        horizontalBarWrap.style.display = "block";
+        jsonInputWrap.style.display = "none";
+      } else if (mode === "json") {
+        horizontalBarWrap.style.display = "none";
+        jsonInputWrap.style.display = "block";
+      } else {
+        horizontalBarWrap.style.display = "none";
+        jsonInputWrap.style.display = "none";
+      }
+      updateHBarStatus();
+    });
+
+    // Update horizontal bar completion status
+    function updateHBarStatus() {
+      let filledCount = 0;
+      const total = hbarInputs.length;
+      hbarInputs.forEach(input => {
+        if (input.value.trim() !== "") filledCount++;
+      });
+      hbarCounter.textContent = `${filledCount} / ${total} fields filled`;
+
+      if (metricsModeSelect.value === "horizontal") {
+        if (filledCount === total) {
+          hbarCounter.className = "pill-counter complete";
+          horizontalBarWrap.classList.add("active-ready");
+          hbarGateMsg.textContent = "✅ All 12 columns complete — telemetry will be passed to prediction models & RCA.";
+          hbarGateMsg.style.color = "var(--turquoise)";
+          opsGateSummary.textContent = "Telemetry Ready: 12/12 features will be included";
+        } else {
+          hbarCounter.className = "pill-counter incomplete";
+          horizontalBarWrap.classList.remove("active-ready");
+          hbarGateMsg.textContent = `⚠️ Incomplete (${filledCount}/${total} filled). Telemetry will NOT be passed until all 12 columns are filled.`;
+          hbarGateMsg.style.color = "var(--status-warning)";
+          opsGateSummary.textContent = "Telemetry Incomplete: Query will run without telemetry";
+        }
+      } else if (metricsModeSelect.value === "json") {
+        opsGateSummary.textContent = "Telemetry Mode: Custom JSON";
+      } else {
+        opsGateSummary.textContent = "Telemetry Mode: None (History retrieval only)";
+      }
+    }
+
+    hbarInputs.forEach(input => {
+      input.addEventListener("input", updateHBarStatus);
+      input.addEventListener("change", updateHBarStatus);
+    });
+
+    // Populate Horizontal Bar Sample
+    document.getElementById("btn-fill-hbar").addEventListener("click", () => {
+      hbarInputs.forEach(input => {
+        const col = input.getAttribute("data-col");
+        if (SAMPLE_TELEMETRY[col] !== undefined) {
+          input.value = SAMPLE_TELEMETRY[col];
+        }
+      });
+      updateHBarStatus();
+    });
+
+    // Clear Horizontal Bar
+    document.getElementById("btn-clear-hbar").addEventListener("click", () => {
+      hbarInputs.forEach(input => input.value = "");
+      updateHBarStatus();
+    });
+
+    // Query Presets
+    document.querySelectorAll(".preset-btn[data-preset]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const preset = btn.getAttribute("data-preset");
+        if (preset === "winter-chennai") {
+          opsQuery.value = "Find winter incidents around Chennai where performance degraded badly.";
+          opsTopK.value = 5;
+        } else if (preset === "handover-failure") {
+          opsQuery.value = "A network region has increasing fault occurrence and declining handover success. What factors contributed?";
+          opsTopK.value = 5;
+        } else if (preset === "high-alarms") {
+          opsQuery.value = "Multiple cells are experiencing poor service quality, high latency, and increasing alarm counts.";
+          opsTopK.value = 7;
+        } else if (preset === "troubleshoot-sop") {
+          opsQuery.value = "Cell is experiencing high latency, packet loss, and critical alarms. What troubleshooting procedures and actions should be taken?";
+          opsTopK.value = 5;
+        }
+      });
+    });
+
+    // Submit Ops Form
+    opsForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      opsErrorAlert.style.display = "none";
+      opsErrorAlert.textContent = "";
+
+      const queryText = opsQuery.value.trim();
+      const topKVal = parseInt(opsTopK.value, 10);
+
+      if (!queryText) {
+        showOpsError("Query cannot be empty.");
+        return;
+      }
+      if (isNaN(topKVal) || topKVal < 1 || topKVal > 50) {
+        showOpsError("Top-k must be an integer between 1 and 50.");
+        return;
+      }
+
+      // Determine network_metrics payload
+      let networkMetrics = null;
+      const mode = metricsModeSelect.value;
+
+      if (mode === "horizontal") {
+        let allFilled = true;
+        const metricsObj = {};
+        hbarInputs.forEach(input => {
+          const col = input.getAttribute("data-col");
+          const val = input.value.trim();
+          if (!val) {
+            allFilled = false;
+          } else {
+            metricsObj[col] = (input.type === "number") ? parseFloat(val) : val;
+          }
+        });
+
+        if (allFilled) {
+          networkMetrics = metricsObj;
+        } else {
+          // Rule: only if all columns filled it will pass, else won't.
+          networkMetrics = null;
+        }
+      } else if (mode === "json") {
+        const jsonStr = opsJsonMetrics.value.trim();
+        if (jsonStr) {
+          try {
+            const parsed = JSON.parse(jsonStr);
+            if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+              throw new Error("JSON metrics must be an object with key-value pairs.");
+            }
+            networkMetrics = parsed;
+          } catch (err) {
+            showOpsError("Invalid JSON metrics: " + err.message);
+            return;
+          }
+        }
+      }
+
+      // Assemble exact request shape
+      const requestPayload = {
+        query: queryText,
+        top_k: topKVal,
+        network_metrics: networkMetrics
+      };
+
+      // Loading state
+      opsSubmitBtn.disabled = true;
+      opsBtnIcon.innerHTML = `<span class="spinner"></span>`;
+      opsBtnLabel.textContent = "Analyzing Network...";
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/analyze`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestPayload)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          let detail = data.detail || `Request failed with HTTP ${response.status}`;
+          if (Array.isArray(detail)) {
+            detail = detail.map(d => d.msg || JSON.stringify(d)).join(", ");
+          }
+          throw new Error(detail);
+        }
+
+        renderOpsResults(data);
+      } catch (err) {
+        showOpsError(err.message || "Failed to connect to API on http://127.0.0.1:8001");
+      } finally {
+        opsSubmitBtn.disabled = false;
+        opsBtnIcon.textContent = "🚀";
+        opsBtnLabel.textContent = "Run Analysis";
+      }
+    });
+
+    function showOpsError(msg) {
+      opsErrorAlert.textContent = msg;
+      opsErrorAlert.style.display = "flex";
+      opsErrorAlert.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    // --- Safe Rendering Function ---
+    function renderOpsResults(payload) {
+      opsPlaceholder.style.display = "none";
+      opsResultsContainer.style.display = "block";
+
+      // 1. Prominent Final Answer (safe textContent)
+      opsFinalAnswer.textContent = payload.final_answer || payload.status || "Analysis completed.";
+
+      // 2. Clear previous sections
+      opsSectionsList.replaceChildren();
+
+      // Section metadata dictionary for human-friendly disclaimers and icons
+      const SECTION_META = {
+        "historical_data": {
+          icon: "📚",
+          disclaimer: "Historical incident records represent similar past cases from the NetOps dataset, not necessarily the same physical cell or current incident."
+        },
+        "root_cause_analysis": {
+          icon: "🔬",
+          disclaimer: "Hypotheses are evidence-linked probabilistic deductions based on historical patterns, never confirmed operational root causes."
+        },
+        "prediction": {
+          icon: "⚡",
+          disclaimer: "Values are offline ML model estimates (XGBoost Regressors), distinct from observed telemetry measurements."
+        },
+        "recommendations": {
+          icon: "🛠️",
+          disclaimer: "Troubleshooting procedures reflect Synapt SOP guidelines. Synthetic or prototype SOPs must not be executed without engineering review."
+        },
+        "incident_prioritization": {
+          icon: "🏷️",
+          disclaimer: "Classification and priority scoring are relative triage indicators within the dataset, not certified operational SLAs."
+        },
+        "network_impact": {
+          icon: "🌐",
+          disclaimer: "Network impact findings describe potential degradation effects, not confirmed customer outages or verified causation."
+        }
+      };
+
+      const sections = payload.sections || [];
+      if (sections.length === 0) {
+        const emptyDiv = document.createElement("div");
+        emptyDiv.className = "alert alert-empty";
+        emptyDiv.textContent = "No analysis sections were returned by the orchestrator.";
+        opsSectionsList.appendChild(emptyDiv);
+      }
+
+      sections.forEach(sec => {
+        const secMeta = SECTION_META[sec.id] || { icon: "📌", disclaimer: "Operational advisory section." };
+
+        const card = document.createElement("div");
+        card.className = "section-card";
+
+        // Header
+        const head = document.createElement("div");
+        head.className = "section-head";
+
+        const titleWrap = document.createElement("div");
+        titleWrap.className = "section-title-wrap";
+
+        const h3 = document.createElement("h3");
+        const iconSpan = document.createElement("span");
+        iconSpan.textContent = secMeta.icon;
+        const titleText = document.createTextNode(` ${sec.title || sec.id}`);
+        h3.append(iconSpan, titleText);
+
+        titleWrap.appendChild(h3);
+
+        // Status Badge
+        const badge = document.createElement("span");
+        badge.className = `badge ${getStatusBadgeClass(sec.status)}`;
+        badge.textContent = sec.status || "info";
+
+        head.append(titleWrap, badge);
+
+        // Disclaimer
+        const discBox = document.createElement("div");
+        discBox.className = "disclaimer-box";
+        discBox.textContent = `ℹ️ ${secMeta.disclaimer}`;
+
+        // Summary Text
+        const summaryP = document.createElement("div");
+        summaryP.className = "section-summary-text";
+        summaryP.textContent = sec.summary || "No section summary provided.";
+
+        // Body Content (Specific rich renderers)
+        const bodyContent = document.createElement("div");
+        renderSectionData(sec.id, sec.data, bodyContent);
+
+        // Raw Section JSON Inspector
+        const details = document.createElement("details");
+        const sumEl = document.createElement("summary");
+        sumEl.textContent = `View structured data for ${sec.title}`;
+        const pre = document.createElement("pre");
+        pre.textContent = JSON.stringify(sec.data, null, 2);
+        details.append(sumEl, pre);
+
+        card.append(head, discBox, summaryP, bodyContent, details);
+        opsSectionsList.appendChild(card);
+      });
+
+      // Raw Orchestrator JSON
+      opsRawJson.textContent = JSON.stringify(payload, null, 2);
+      opsResultsContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function getStatusBadgeClass(status) {
+      if (status === "success" || status === "classified") return "badge-turquoise";
+      if (status === "partial" || status === "fallback" || status === "no_procedures") return "badge-warning";
+      if (status === "error" || status === "unavailable") return "badge-error";
+      return "badge-muted";
+    }
+
+    // Specialized safe table & card builders for each section
+    function renderSectionData(sectionId, data, container) {
+      if (!data || typeof data !== "object") return;
+
+      if (sectionId === "historical_data") {
+        const incidents = data.incidents || [];
+        if (incidents.length > 0) {
+          const wrap = document.createElement("div");
+          wrap.className = "table-responsive";
+          const table = document.createElement("table");
+          const thead = document.createElement("thead");
+          thead.innerHTML = `
+            <tr>
+              <th>Incident ID</th>
+              <th>Issue Reported</th>
+              <th>Latency</th>
+              <th>Loss</th>
+              <th>Throughput</th>
+              <th>Availability</th>
+              <th>Season / City</th>
+            </tr>
+          `;
+          const tbody = document.createElement("tbody");
+
+          incidents.forEach(item => {
+            const inc = item.incident || item;
+            const tr = document.createElement("tr");
+
+            const tdId = document.createElement("td");
+            tdId.style.fontWeight = "700";
+            tdId.style.color = "var(--turquoise)";
+            tdId.textContent = inc.incident_id || inc.id || "INC-HIST";
+
+            const tdIssue = document.createElement("td");
+            tdIssue.textContent = inc.issue_reported || inc["Issue Reported"] || "N/A";
+
+            const tdLat = document.createElement("td");
+            tdLat.textContent = formatMetric(inc.latency_ms || inc["Latency (ms)"], "ms");
+
+            const tdLoss = document.createElement("td");
+            tdLoss.textContent = formatMetric(inc.packet_loss_rate || inc["Packet Loss Rate (%)"], "%");
+
+            const tdThr = document.createElement("td");
+            tdThr.textContent = formatMetric(inc.throughput_mbps || inc["Throughput (Mbps)"], "Mbps");
+
+            const tdAvail = document.createElement("td");
+            tdAvail.textContent = formatMetric(inc.cell_availability || inc["Cell Availability (%)"], "%");
+
+            const tdGeo = document.createElement("td");
+            const season = inc.season || inc["Season"] || "";
+            const city = inc.city || inc["City"] || "";
+            tdGeo.textContent = [season, city].filter(Boolean).join(" • ") || "N/A";
+
+            tr.append(tdId, tdIssue, tdLat, tdLoss, tdThr, tdAvail, tdGeo);
+            tbody.appendChild(tr);
+          });
+
+          table.append(thead, tbody);
+          wrap.appendChild(table);
+          container.appendChild(wrap);
+        }
+      } else if (sectionId === "root_cause_analysis") {
+        const ranked = data.ranked_hypotheses || [];
+        if (ranked.length > 0) {
+          const wrap = document.createElement("div");
+          wrap.className = "table-responsive";
+          const table = document.createElement("table");
+          table.innerHTML = `
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Root-Cause Hypothesis</th>
+                <th>Confidence Score</th>
+                <th>Category</th>
+              </tr>
+            </thead>
+          `;
+          const tbody = document.createElement("tbody");
+          ranked.forEach((hyp, idx) => {
+            const tr = document.createElement("tr");
+            const tdRank = document.createElement("td");
+            tdRank.textContent = `#${idx + 1}`;
+            const tdName = document.createElement("td");
+            tdName.style.fontWeight = "600";
+            tdName.textContent = hyp.hypothesis || hyp.name || "Hypothesis";
+            const tdScore = document.createElement("td");
+            const scoreVal = typeof hyp.score === "number" ? hyp.score.toFixed(2) : (hyp.score || "N/A");
+            tdScore.innerHTML = `<span class="badge badge-teal">${scoreVal}</span>`;
+            const tdCat = document.createElement("td");
+            tdCat.textContent = hyp.category || "General";
+
+            tr.append(tdRank, tdName, tdScore, tdCat);
+            tbody.appendChild(tr);
+          });
+          table.appendChild(tbody);
+          wrap.appendChild(table);
+          container.appendChild(wrap);
+        }
+      } else if (sectionId === "recommendations") {
+        const recList = data.recommendations || [];
+        if (recList.length > 0) {
+          const listDiv = document.createElement("div");
+          listDiv.style.margin = "8px 0";
+          recList.forEach((item, idx) => {
+            const p = document.createElement("div");
+            p.style.padding = "8px 12px";
+            p.style.marginBottom = "6px";
+            p.style.background = "var(--bg-surface)";
+            p.style.borderLeft = "3px solid var(--turquoise)";
+            p.style.borderRadius = "0 var(--radius-sm) var(--radius-sm) 0";
+
+            const strong = document.createElement("strong");
+            strong.textContent = `Action ${idx + 1}: `;
+            const text = document.createTextNode(item.action || JSON.stringify(item));
+            p.append(strong, text);
+
+            if (item.procedure_name || item.procedure_id) {
+              const sopTag = document.createElement("span");
+              sopTag.className = "badge badge-muted";
+              sopTag.style.marginLeft = "8px";
+              sopTag.textContent = `SOP: ${item.procedure_name || item.procedure_id}`;
+              p.appendChild(sopTag);
+            }
+            listDiv.appendChild(p);
+          });
+          container.appendChild(listDiv);
+        }
+      } else if (sectionId === "prediction") {
+        const preds = data.prediction || {};
+        const perf = preds.network_performance || {};
+        const fault = preds.fault_risk || {};
+
+        if (perf.status === "success" || fault.status === "success") {
+          const kpis = document.createElement("div");
+          kpis.className = "kpi-row";
+
+          if (perf.status === "success") {
+            const k1 = document.createElement("div");
+            k1.className = "kpi-card";
+            k1.innerHTML = `
+              <div class="kpi-title">Model 1: Predicted Throughput</div>
+              <div class="kpi-value">${perf.predicted_throughput_mbps} Mbps</div>
+              <div class="kpi-sub">Target: Throughput (Mbps)</div>
+            `;
+            kpis.appendChild(k1);
+          }
+
+          if (fault.status === "success") {
+            const k2 = document.createElement("div");
+            k2.className = "kpi-card";
+            k2.innerHTML = `
+              <div class="kpi-title">Model 2: Predicted Fault Rate</div>
+              <div class="kpi-value">${fault.predicted_fault_occurrence_rate_percent}%</div>
+              <div class="kpi-sub">Risk Band: ${fault.fault_risk || 'Standard'}</div>
+            `;
+            kpis.appendChild(k2);
+          }
+          container.appendChild(kpis);
+        }
+      }
+    }
+
+    function formatMetric(val, unit) {
+      if (val === undefined || val === null) return "N/A";
+      const num = typeof val === "number" ? val : parseFloat(val);
+      if (isNaN(num)) return String(val);
+      return `${num.toFixed(1)} ${unit}`;
+    }
+
+    // --- Tab 2: Dedicated ML Prediction Logic ---
+    const mlForm = document.getElementById("ml-form");
+    const mlInputs = document.querySelectorAll(".ml-input");
+    const mlGateBadge = document.getElementById("ml-gate-badge");
+    const mlGateText = document.getElementById("ml-gate-text");
+    const mlSubmitBtn = document.getElementById("ml-submit-btn");
+    const mlBtnIcon = document.getElementById("ml-btn-icon");
+    const mlBtnLabel = document.getElementById("ml-btn-label");
+    const mlErrorAlert = document.getElementById("ml-error-alert");
+    const mlOutputContainer = document.getElementById("ml-output-container");
+    const m1ThroughputVal = document.getElementById("m1-throughput-val");
+    const m1ThroughputSub = document.getElementById("m1-throughput-sub");
+    const m1Details = document.getElementById("m1-details");
+    const m2FaultVal = document.getElementById("m2-fault-val");
+    const m2FaultSub = document.getElementById("m2-fault-sub");
+    const m2Details = document.getElementById("m2-details");
+
+    const ML_PRESETS = {
+      severe: {
+        "Cell Availability (%)": 82.5,
+        "MTTR (hours)": 6.8,
+        "Latency (ms)": 142.0,
+        "Packet Loss Rate (%)": 12.4,
+        "Call Drop Rate (%)": 4.1,
+        "Handover Success Rate (%)": 91.2,
+        "Alarm Count": 18,
+        "Critical Alarm Count": 9.4,
+        "Parameter Changes": 14,
+        "Successful Configuration Changes (%)": 91.0,
+        "Data Usage (GB)": 44.5,
+        "User Count": 7800,
+        "Signal Strength (dBm)": -108.0,
+        "Jitter (ms)": 38.5,
+        "Connection Setup Success Rate (%)": 91.5,
+        "Security Incidents": 8,
+        "Authentication Failures": 22,
+        "Temperature (°C)": -4.2,
+        "Humidity (%)": 78.0,
+        "Fault Occurrence Rate (%)": 48.5,
+        "Season": "Winter",
+        "Weather": "Snow",
+        "City": "Chennai",
+        "State": "TN"
+      },
+      moderate: {
+        "Cell Availability (%)": 88.0,
+        "MTTR (hours)": 4.5,
+        "Latency (ms)": 88.0,
+        "Packet Loss Rate (%)": 6.5,
+        "Call Drop Rate (%)": 1.2,
+        "Handover Success Rate (%)": 95.0,
+        "Alarm Count": 11,
+        "Critical Alarm Count": 5.2,
+        "Parameter Changes": 9,
+        "Successful Configuration Changes (%)": 94.5,
+        "Data Usage (GB)": 28.0,
+        "User Count": 4900,
+        "Signal Strength (dBm)": -92.0,
+        "Jitter (ms)": 22.0,
+        "Connection Setup Success Rate (%)": 94.8,
+        "Security Incidents": 5,
+        "Authentication Failures": 12,
+        "Temperature (°C)": 24.0,
+        "Humidity (%)": 68.0,
+        "Fault Occurrence Rate (%)": 32.0,
+        "Season": "Fall",
+        "Weather": "Rain",
+        "City": "Dallas",
+        "State": "TX"
+      },
+      normal: {
+        "Cell Availability (%)": 98.5,
+        "MTTR (hours)": 1.8,
+        "Latency (ms)": 28.0,
+        "Packet Loss Rate (%)": 0.8,
+        "Call Drop Rate (%)": 0.1,
+        "Handover Success Rate (%)": 99.1,
+        "Alarm Count": 2,
+        "Critical Alarm Count": 0.5,
+        "Parameter Changes": 2,
+        "Successful Configuration Changes (%)": 98.2,
+        "Data Usage (GB)": 18.5,
+        "User Count": 2100,
+        "Signal Strength (dBm)": -72.0,
+        "Jitter (ms)": 5.2,
+        "Connection Setup Success Rate (%)": 98.9,
+        "Security Incidents": 1,
+        "Authentication Failures": 2,
+        "Temperature (°C)": 21.0,
+        "Humidity (%)": 45.0,
+        "Fault Occurrence Rate (%)": 12.0,
+        "Season": "Spring",
+        "Weather": "Clear",
+        "City": "Austin",
+        "State": "TX"
+      }
+    };
+
+    function updateMlGateStatus() {
+      let requiredCount = 0;
+      let filledRequired = 0;
+
+      mlInputs.forEach(input => {
+        if (input.hasAttribute("required")) {
+          requiredCount++;
+          if (input.value.trim() !== "") filledRequired++;
+        }
+      });
+
+      mlGateBadge.textContent = `${filledRequired} / ${requiredCount} Required Fields`;
+      if (filledRequired === requiredCount) {
+        mlGateBadge.className = "pill-counter complete";
+        mlGateText.textContent = "All required features supplied. Ready for inference.";
+        mlGateText.style.color = "var(--turquoise)";
+        mlSubmitBtn.disabled = false;
+      } else {
+        mlGateBadge.className = "pill-counter incomplete";
+        mlGateText.textContent = `Fill remaining ${requiredCount - filledRequired} required features to unlock execution`;
+        mlGateText.style.color = "var(--text-muted)";
+        mlSubmitBtn.disabled = true;
+      }
+    }
+
+    mlInputs.forEach(input => {
+      input.addEventListener("input", updateMlGateStatus);
+      input.addEventListener("change", updateMlGateStatus);
+    });
+
+    // Preset handlers
+    function applyMlPreset(presetKey) {
+      const data = ML_PRESETS[presetKey];
+      if (!data) return;
+      mlInputs.forEach(input => {
+        const feat = input.getAttribute("data-feature");
+        if (data[feat] !== undefined) {
+          input.value = data[feat];
+        }
+      });
+      updateMlGateStatus();
+    }
+
+    document.getElementById("ml-preset-severe").addEventListener("click", () => applyMlPreset("severe"));
+    document.getElementById("ml-preset-moderate").addEventListener("click", () => applyMlPreset("moderate"));
+    document.getElementById("ml-preset-normal").addEventListener("click", () => applyMlPreset("normal"));
+    document.getElementById("ml-preset-clear").addEventListener("click", () => {
+      mlInputs.forEach(input => input.value = "");
+      updateMlGateStatus();
+      mlOutputContainer.style.display = "none";
+    });
+
+    // Run ML Models
+    mlForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      mlErrorAlert.style.display = "none";
+      mlErrorAlert.textContent = "";
+
+      const featurePayload = {};
+      mlInputs.forEach(input => {
+        const feat = input.getAttribute("data-feature");
+        const val = input.value.trim();
+        if (val !== "") {
+          featurePayload[feat] = (input.tagName === "SELECT" || isNaN(Number(val))) ? val : parseFloat(val);
+        }
+      });
+
+      // Submit via analyze API with network_metrics
+      const body = {
+        query: "Run network performance and fault risk prediction models for supplied telemetry metrics.",
+        top_k: 1,
+        network_metrics: featurePayload
+      };
+
+      mlSubmitBtn.disabled = true;
+      mlBtnIcon.innerHTML = `<span class="spinner"></span>`;
+      mlBtnLabel.textContent = "Executing Inference...";
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/analyze`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || `Inference error (HTTP ${res.status})`);
+        }
+
+        renderMlResults(data, featurePayload);
+      } catch (err) {
+        mlErrorAlert.textContent = err.message;
+        mlErrorAlert.style.display = "flex";
+      } finally {
+        mlSubmitBtn.disabled = false;
+        mlBtnIcon.textContent = "⚡";
+        mlBtnLabel.textContent = "Run ML Models";
+      }
+    });
+
+    function renderMlResults(apiData, inputFeatures) {
+      mlOutputContainer.style.display = "block";
+
+      const predSec = (apiData.sections || []).find(s => s.id === "prediction");
+      const predData = (predSec && predSec.data && predSec.data.prediction) ? predSec.data.prediction : {};
+
+      const perf = predData.network_performance || {};
+      const fault = predData.fault_risk || {};
+
+      // Model 1: Network Throughput
+      if (perf.status === "success" && perf.predicted_throughput_mbps !== undefined) {
+        m1ThroughputVal.textContent = `${perf.predicted_throughput_mbps} Mbps`;
+        m1ThroughputSub.textContent = `Quality: ${perf.performance_evaluation || 'Normal'} | Latency: ${inputFeatures['Latency (ms)'] || 0}ms`;
+        m1Details.innerHTML = `
+          <div>&bull; <strong>Model Algorithm:</strong> XGBoost Regressor (Test R²: 0.9972)</div>
+          <div>&bull; <strong>Target Feature:</strong> Throughput (Mbps)</div>
+          <div>&bull; <strong>Baseline Evaluation:</strong> ${perf.performance_evaluation || 'Computed'}</div>
+        `;
+      } else {
+        m1ThroughputVal.textContent = "Model Skipped";
+        m1ThroughputSub.textContent = perf.error || "Required inputs missing or model failed";
+        m1Details.textContent = "";
+      }
+
+      // Model 2: Fault Occurrence Risk
+      if (fault.status === "success" && fault.predicted_fault_occurrence_rate_percent !== undefined) {
+        m2FaultVal.textContent = `${fault.predicted_fault_occurrence_rate_percent}%`;
+        m2FaultSub.textContent = `Risk Level: ${fault.fault_risk || 'Evaluated'}`;
+        m2Details.innerHTML = `
+          <div>&bull; <strong>Model Algorithm:</strong> XGBoost Regressor (Test R²: 0.9997)</div>
+          <div>&bull; <strong>Target Feature:</strong> Fault Occurrence Rate (%)</div>
+          <div>&bull; <strong>Risk Assessment:</strong> ${fault.fault_risk || 'Normal'} risk tier</div>
+        `;
+      } else {
+        m2FaultVal.textContent = "Model Skipped";
+        m2FaultSub.textContent = fault.error || "Required inputs missing or model failed";
+        m2Details.textContent = "";
+      }
+
+      mlOutputContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    // Initialize gate checks on page load
+    updateHBarStatus();
+    updateMlGateStatus();
+  </script>
+</body>
+</html>

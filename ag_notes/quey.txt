@@ -1,0 +1,29 @@
+Yes. QuerySynaptAgent now applies dataset-derived thresholds and returns a structured handoff for a future RCA agent. The legacy Query Agent flow is separate and does not use these thresholds.
+
+Flow
+1.Validate and sanitize the query.
+2.Ask Synapt for domain context; if Synapt is unavailable, continue without it.
+3.Ask the planning LLM to turn the query into filters and a search phrase; if that fails, use the deterministic parser.
+4.For phrases such as “high packet loss”, derive a filter from that metric’s dataset distribution. Explicit numeric comparisons, such as “packet loss above 5%,” are not replaced by an inferred band.
+5.Retrieve historical incidents using metadata and numeric filters, then rank them with hybrid semantic and BM25 search.
+6.Return the records and query context in rca_handoff.
+
+
+The query bands use dataset thirds: low is at or below the 1/3 quantile, medium is between the 1/3 and 2/3 quantiles, 
+and high is above the 2/3 quantile. They describe this dataset’s distribution—they are not universal risk standards. 
+See metric_thresholds.py and the threshold logic in QuerySynaptAgent.
+
+
+The handoff contains the original and sanitized queries, query plan and source, applied thresholds, Synapt context, 
+retrieval summary, retrieved incidents, status (ready_for_rca or no_evidence), and guardrails. It explicitly says that
+ Synapt context is advisory and retrieved records are observations, not proof of cause. The contract and flow are in query_synapt_agent.py.
+
+The handoff contains the original and sanitized queries, query plan and source, applied thresholds, 
+Synapt context, retrieval summary, retrieved incidents, status (ready_for_rca or no_evidence), and guardrails.
+ It explicitly says that Synapt context is advisory and retrieved records are observations, not proof of 
+ cause. The contract and flow are in query_synapt_agent.py.
+
+
+
+ =========================================
+ Test :.\venv\Scripts\python.exe .\agents\query_synapt_agent.py "Find winter cases with high packet loss and elevated latency"

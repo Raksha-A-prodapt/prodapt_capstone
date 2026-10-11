@@ -1,0 +1,58 @@
+User query
+    │
+    ▼
+QuerySynaptAgent
+    ├── Finds matching historical incidents
+    ├── Applies metadata and numeric filters
+    └── Produces `rca_handoff`
+               │
+               ├────────────────────────────────┐
+               ▼                                ▼
+       NetworkPredictionAgent             Synapt context
+       (optional input)                    (advisory only)
+       Needs current metrics                       │
+               │                                   │
+               └──────────────────┬────────────────┘
+                                  ▼
+                              RCA Agent
+                                  │
+                  Compares evidence and forms
+                    ranked cause hypotheses
+                                  │
+                                  ▼
+                         Structured RCA result
+
+
+
+
+
+I’ve created the RCA agent and am validating that the handoff path stays efficient without re-triggering Synapt.
+
+Ran terminal command: py -3 -c "from agents.rca_agent import RCAAgent; handoff={'retrieved_incidents':[{'incident_id':'INC1','scores':{'hybrid':0.9},'incident':{'incident_id':'INC1','issue_reported':'packet loss','packet_loss_rate':7.2,'latency_ms':82,'call_drop_rate':1.4,'cell_availability':96.1,'fault_occurrence_rate':11.0}}, {'incident_id':'INC2','scores':{'hybrid':0.75},'incident':{'incident_id':'INC2','issue_reported':'coverage problem','packet_loss_rate':5.1,'latency_ms':67,'call_drop_rate':1.0,'cell_availability':89.2,'fault_occurrence_rate':8.5}}], 'synapt_context': {'answer':'Use packet loss and latency signals for poor QoS'} }; result = RCAAgent().process('high latency and drops', handoff, {'packet_loss_rate': 6.8, 'latency_ms': 75, 'call_drop_rate': 1.3}, {'prediction': {'network_performance': {'predicted_throughput_mbps': 250}, 'fault_risk': {'predicted_fault_occurrence_rate_percent': 12.0, 'fault_risk': 'MEDIUM'}}}); print(result['status']); print(result['summary']['top_hypothesis']); print(result['hypotheses'][0]['score'])"
+
+I created the RCA agent here:
+- `agents/rca_agent.py`
+- `agents/init.py`
+
+This flow is the right pattern for efficiency and stability:
+
+- QuerySynaptAgent calls Synapt once and produces the handoff
+- NetworkPredictionAgent runs independently with current metrics
+- RCAAgent consumes:
+  - rca_handoff
+  - current_metrics / network_prediction
+- RCAAgent does not call Synapt again
+- It only reads the prior advisory Synapt answer already stored in rca_handoff["synapt_context"]
+
+That means:
+- no re-trigger loop
+- no extra agent connection
+- no efficiency drop from repeated Synapt calls
+- no break in the decision chain because the output is passed as structured data, not a new agent invocation
+
+I also validated it with a focused Python smoke test:
+- status: success
+- top hypothesis was produced
+- no runtime error
+
+If you want, I can next wire this into the orchestrator entrypoint so the whole pipeline runs end-to-end in one execution path.

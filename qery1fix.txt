@@ -1,0 +1,4 @@
+The output is behaving exactly according to two current gates:
+1. Your query asks to find incidents, but not for actions/SOPs, so Recommendation Agent marks itself Not Requested.
+2. Queries without words like “why,” “recommend,” or “troubleshoot” skip the final LLM summary, so you only see the retrieval-style answer.
+I’ll adjust those gates so performance-degradation queries trigger SOP retrieval, and every valid query gets the natural-language LLM summary. Synapt’s low-confidence warning will remain visible as a caution, but it will not discard the domain context.

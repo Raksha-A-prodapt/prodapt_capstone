@@ -1,0 +1,28 @@
+{"canonical":"incident_id","source":"Incident_ID","aliases":["incident id","incident_id"]}
+{"canonical":"season","source":"Season","aliases":[]}
+{"canonical":"cell_availability","source":"Cell Availability (%)","aliases":["availability","cell availability"]}
+{"canonical":"mttr_hours","source":"MTTR (hours)","aliases":["mttr"]}
+{"canonical":"throughput_mbps","source":"Throughput (Mbps)","aliases":["throughput"]}
+{"canonical":"latency_ms","source":"Latency (ms)","aliases":["latency","delay"]}
+{"canonical":"packet_loss_rate","source":"Packet Loss Rate (%)","aliases":["packet loss","packet loss rate"]}
+{"canonical":"call_drop_rate","source":"Call Drop Rate (%)","aliases":["call drops","call drop"]}
+{"canonical":"handover_success_rate","source":"Handover Success Rate (%)","aliases":["handover","handover success"]}
+{"canonical":"alarm_count","source":"Alarm Count","aliases":["alarms","alarm count"]}
+{"canonical":"critical_alarm_count","source":"Critical Alarm Count","aliases":["critical alarms"]}
+{"canonical":"parameter_changes","source":"Parameter Changes","aliases":["parameter changes"]}
+{"canonical":"successful_configuration_changes","source":"Successful Configuration Changes (%)","aliases":["configuration success","successful configuration"]}
+{"canonical":"data_usage_gb","source":"Data Usage (GB)","aliases":["data usage"]}
+{"canonical":"user_count","source":"User Count","aliases":["users","user count"]}
+{"canonical":"signal_strength_dbm","source":"Signal Strength (dBm)","aliases":["signal","signal strength"]}
+{"canonical":"jitter_ms","source":"Jitter (ms)","aliases":["jitter"]}
+{"canonical":"connection_setup_success_rate","source":"Connection Setup Success Rate (%)","aliases":["connection setup"]}
+{"canonical":"security_incidents","source":"Security Incidents","aliases":[]}
+{"canonical":"authentication_failures","source":"Authentication Failures","aliases":[]}
+{"canonical":"temperature_c","source":"Temperature (°C)","aliases":["temperature","temperature c","Temperature (Â°C)","Temperature (�C)"]}
+{"canonical":"humidity_percent","source":"Humidity (%)","aliases":["humidity"]}
+{"canonical":"weather","source":"Weather","aliases":[]}
+{"canonical":"issue_reported","source":"Issue Reported","aliases":["issue"]}
+{"canonical":"city","source":"City","aliases":[]}
+{"canonical":"state","source":"State","aliases":[]}
+{"canonical":"zip","source":"Zip","aliases":["zip code","postal code"]}
+{"canonical":"fault_occurrence_rate","source":"Fault Occurrence Rate (%)","aliases":["fault occurrence","faults"]}

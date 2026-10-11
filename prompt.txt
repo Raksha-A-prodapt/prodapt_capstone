@@ -1,0 +1,424 @@
+# Antigravity Prompt: Build a Clean React UI for Telecom Network Operations Assistant
+
+## 1. Objective
+
+Refine the existing Telecom Network Operations Assistant frontend into a polished, modern, responsive **React application**.
+
+I want a neat, minimal UI with properly aligned navigation, compact dashboard cards, readable charts, and a consistent layout. The current UI does not meet my visual expectations, so prioritize clean design, alignment, and usability.
+
+**First inspect the existing project files**, especially:
+
+* `APPLICATION_FLOW.md`
+* `README.md`
+* `question.txt`
+* `frontend/` contents
+* `frontend/dataset_summary.json`
+* Existing model evaluation reports and DeepEval reports.
+
+Understand the existing API, model integrations, application flow, and available data before implementing the UI.
+
+## 2. Strict Requirements
+
+* Use React as the frontend framework.
+* Keep the React code simple, organized, and maintainable.
+* Modify files inside `frontend/` only.
+* Reuse the existing frontend build configuration if one exists.
+* Do not introduce unnecessary dependencies.
+* Do not modify backend code, agents, models, retrieval, Synapt integration, or API contracts.
+* Do not create fake backend endpoints or duplicate business logic in React.
+* Preserve existing functionality wherever it is already implemented.
+
+Existing services:
+
+* Main API: `http://127.0.0.1:8001`
+* Analysis: `POST /api/analyze`
+* API health: `GET /api/health`
+* Synapt MCP: port `8000`
+* Frontend: port `8790`
+
+Keep the frontend served on port `8790`.
+
+## 3. Design System
+
+Use this exact primary color palette:
+
+* Black: `#000000`
+* Dark teal: `#007C7C`
+* Turquoise: `#00BABA`
+* White: `#FFFFFF`
+* Supporting dark surfaces: subtle shades such as `#0A0E0E` and `#111818`
+* Borders: muted dark-grey shades.
+
+Design direction:
+
+* Minimal, elegant, professional telecom operations dashboard.
+* Black/dark background with dark teal navigation and buttons.
+* Turquoise for active navigation, small highlights, chart accents, and key values.
+* White text with sufficient contrast.
+* Consistent margins, padding, card heights, font sizes, and alignment.
+* Small, readable KPI cards rather than oversized panels.
+* Subtle borders and simple rounded corners.
+* No excessive gradients, glowing effects, unnecessary animations, or decorative clutter.
+
+The UI must look organized even when the user has not submitted a query or generated predictions.
+
+## 4. Main Layout: Top Navigation Bar
+
+**This is the most important layout requirement.**
+
+Create a single, consistent top navigation bar shared across all pages.
+
+### Left side
+
+* Application logo or simple telecom/network icon.
+* Application name: `Telecom Network Operations Assistant`.
+
+Keep the logo and title compact.
+
+### Center section: Primary navigation
+
+Place the following three primary navigation items prominently in one horizontal row:
+
+1. **AI Assistant**
+2. **Network Performance & Fault Prediction**
+3. **Evaluations**
+
+The Home Dashboard should be accessible through a smaller Home navigation item or logo-linked home route, without competing visually with these three main actions.
+
+Navigation requirements:
+
+* Keep all items on the same horizontal line on desktop.
+* Use consistent spacing and button dimensions.
+* Highlight the active page using dark teal and turquoise.
+* Use clear labels, not ambiguous abbreviations.
+* Do not wrap navigation labels awkwardly.
+* On smaller screens, use a compact responsive navigation menu.
+
+### Right side: User menu
+
+At the far right, display a small user profile area containing:
+
+* A circular avatar with a simple user icon or initials.
+* `User` or `Demo User`.
+* A dropdown menu with `Profile` and `Sign out`.
+
+Do not make the user area oversized. It should remain visually secondary to the primary navigation.
+
+Keep the entire navbar properly aligned vertically, with consistent height and horizontal spacing.
+
+## 5. Simple Demo Login
+
+Create a clean demo login screen.
+
+Requirements:
+
+* Application logo and title.
+* Username field.
+* Password field.
+* Sign in button.
+* Optional `Continue as Demo User` button.
+* Clear validation messages for empty inputs.
+* A professional, minimal design matching the dark teal theme.
+
+This is only a frontend demo login, not real authentication.
+
+Use a clearly documented demo-only session state. Do not claim that credentials are securely authenticated, and do not add a backend authentication endpoint.
+
+After successful demo entry, show the main dashboard.
+
+The user dropdown should include Sign out, which returns to the demo login screen and clears the frontend session state.
+
+Do not add unnecessary authentication complexity.
+
+## 6. Home Dashboard
+
+Create a compact landing dashboard that gives users an overview of the telecom dataset and system.
+
+Use `frontend/dataset_summary.json` as the primary source for the dataset overview.
+
+### A. Welcome section
+
+Display:
+
+* `Network Operations Overview`
+* A short description of the application.
+* A small API status indicator.
+
+Do not use a large hero section. Keep the welcome area compact.
+
+### B. KPI cards
+
+Display small, evenly aligned cards based on the actual fields available in `dataset_summary.json`.
+
+Prefer relevant metrics such as:
+
+* Total dataset records.
+* Number of network metrics/features.
+* Available seasons or weather categories.
+* Relevant dataset summary statistics.
+
+Only display values supported by the JSON file. Do not invent live incident counts, network availability, fault alerts, or API activity.
+
+If a value is unavailable, omit the card or clearly indicate that it is unavailable.
+
+### C. Small charts
+
+Include two to four compact charts only if the required real data is available.
+
+Potential examples:
+
+* Throughput distribution or summary.
+* Latency distribution or summary.
+* Fault occurrence rate summary.
+* Seasonal or weather-related dataset statistics.
+
+Use real data from the existing dataset or precomputed summary files.
+
+If `dataset_summary.json` contains only aggregate statistics, display suitable KPI cards or summary visualizations rather than fabricating distributions.
+
+Keep the charts visually balanced, with aligned heights, concise titles, readable axes, and restrained turquoise/teal accents.
+
+### D. Quick navigation
+
+Include three compact shortcut cards or links:
+
+* Open AI Assistant.
+* Open Network Performance & Fault Prediction.
+* View Evaluations.
+
+These should navigate to the corresponding pages.
+
+The Home Dashboard must feel like a useful overview, not a cluttered collection of every available feature.
+
+## 7. AI Assistant Page
+
+Preserve the existing application flow and API contract.
+
+### Query interface
+
+Provide:
+
+* A clearly labelled multiline telecom question input.
+* A `top_k` selector ranging from 1 to 50, default 5.
+* Optional expandable JSON input for network metrics.
+* An Analyze button.
+* A few useful example queries.
+
+Submit the existing request shape to `POST /api/analyze`:
+
+`{"query": "user question", "top_k": 5, "network_metrics": null}`
+
+Send the supplied metrics object instead of `null` when appropriate.
+
+Validate JSON before submission.
+
+### Optional telemetry input bar
+
+Keep the 12-field telemetry form compact and neatly aligned in a responsive grid:
+
+* Latency (ms)
+* Packet Loss Rate (%)
+* Call Drop Rate (%)
+* Handover Success Rate (%)
+* Cell Availability (%)
+* Throughput (Mbps)
+* Alarm Count
+* Critical Alarm Count
+* Signal Strength (dBm)
+* Jitter (ms)
+* Season
+* Weather
+
+Display completion status.
+
+Only submit telemetry when every required field has a valid value. Never send partial telemetry or silently fill missing fields.
+
+### Results layout
+
+Display the returned `final_answer` prominently, followed by every returned section.
+
+Organize information into clearly titled sections:
+
+* Historical Incident Matches
+* Root-Cause Analysis
+* Network Predictions
+* Recommendations
+* Incident Classification and Prioritization
+* Network Impact Assessment
+
+Use compact cards, tables, and expandable evidence panels where appropriate.
+
+Respect returned section IDs, titles, statuses, summaries, and structured data. Do not hardcode a fixed number of results.
+
+Include appropriate disclaimers:
+
+* Historical matches are similar past records.
+* RCA findings are hypotheses, not confirmed causes.
+* Predictions are model estimates, not observed measurements.
+* Synthetic/demo SOPs are not approved operational procedures.
+* Prioritization is dataset-relative triage.
+* Network impact represents potential effects, not confirmed customer impact.
+
+Handle loading, API errors, empty results, unavailable sections, and procedure statuses correctly.
+
+Use safe React rendering for server-provided values. Do not use unsafe HTML injection.
+
+## 8. Network Performance & Fault Prediction Page
+
+This is the second primary page.
+
+Give it a clear title: **Network Performance & Fault Prediction**.
+
+Create two separate, visually consistent model cards.
+
+### Model 1: Network Throughput Prediction
+
+* Display a short description.
+* Provide input fields for the exact required model features.
+* Use labels, units, and supported categorical choices.
+* Display input completion and validation status.
+* Enable prediction only when all required inputs are valid.
+* Display the estimated throughput in Mbps after a successful prediction.
+
+### Model 2: Fault Occurrence Rate Prediction
+
+* Display a short description.
+* Provide its actual required features.
+* Display completion and validation status.
+* Enable prediction only when all required inputs are valid.
+* Display the estimated fault occurrence rate as a percentage.
+
+Read the existing model code, metadata, and integration to determine required features and how inference is invoked.
+
+Do not guess required columns, invent API endpoints, or move model execution into the frontend.
+
+Allow each model to run independently when its required inputs are available.
+
+Use clear result cards to distinguish predicted values from input measurements. Display errors when inference fails.
+
+If an existing prediction endpoint or callable integration is unavailable, explain the limitation rather than fabricating results.
+
+## 9. Evaluations Page
+
+The third primary navigation item is **Evaluations**.
+
+Make this page visually simple and organized.
+
+At the top, show two prominent but compact evaluation cards:
+
+### Card 1: ML Model Evaluation
+
+Include:
+
+* Model name.
+* Prediction target.
+* Available evaluation metrics, such as R², MAE, RMSE, and MAPE.
+* A brief description of what the model predicts.
+
+Read the existing evaluation reports. Use actual values only.
+
+### Card 2: Agent DeepEval
+
+Include:
+
+* Overall test count and pass/fail counts.
+* Available agent-quality metrics.
+* A short description of the evaluation purpose.
+
+Read the existing DeepEval reports rather than hardcoding expected results.
+
+Clearly distinguish test pass rates from quality metrics.
+
+### DeepEval query dropdown
+
+Add a dropdown labelled `Evaluation Queries` or `Queries Used for DeepEval`.
+
+When selected, display the corresponding query/test case and its available evaluation details.
+
+Requirements:
+
+* Discover the actual evaluation queries from existing evaluation files or test fixtures.
+* Populate the dropdown dynamically.
+* Show the selected query and relevant result or scores.
+* Display failure details when available.
+* Do not fabricate evaluation queries or scores.
+* Keep this component compact and easy to use.
+
+The page should communicate model performance and agent evaluation results without overwhelming the user with raw JSON.
+
+## 10. Responsive Layout and Interaction
+
+Ensure the interface remains neat at all supported screen sizes.
+
+Desktop:
+
+* One horizontal navbar.
+* Three prominent primary navigation actions.
+* User dropdown at the right.
+* Consistent card grids and aligned chart panels.
+
+Tablet and mobile:
+
+* Collapse navigation when necessary.
+* Stack cards and charts appropriately.
+* Keep buttons and form controls usable.
+* Prevent horizontal overflow.
+* Maintain readable text and clear active-page indication.
+
+Use accessible labels, visible keyboard focus, semantic buttons, and appropriate contrast.
+
+Keep transitions subtle and optional.
+
+## 11. Implementation Approach
+
+Before coding:
+
+1. Inspect the existing frontend files and project structure.
+2. Identify whether React/Vite or another React build configuration already exists.
+3. Identify the actual analysis and prediction integrations.
+4. Inspect `dataset_summary.json` and existing evaluation report structures.
+5. Plan the simplest implementation that meets the requirements.
+
+During implementation:
+
+* Use reusable React components for the navbar, KPI cards, status badges, charts, and forms.
+* Keep page components separate where useful.
+* Keep styles centralized and consistent.
+* Avoid unnecessary global state libraries and UI frameworks.
+* Do not duplicate backend business logic.
+* Keep changes isolated to `frontend/`.
+
+If the existing frontend is not configured for React, create the smallest practical React setup inside `frontend/` without modifying the backend or root project configuration.
+
+Ensure the final application can be served on port `8790`.
+
+## 12. Verification
+
+After implementation:
+
+* Run the frontend and check that it loads correctly.
+* Verify navigation and active-page highlighting.
+* Test the demo login, user dropdown, and sign-out flow.
+* Verify that all navbar items are properly aligned.
+* Test the analysis request against the existing API.
+* Test telemetry validation and incomplete inputs.
+* Verify the model prediction integrations and their required fields.
+* Verify the evaluation cards and DeepEval query dropdown use actual report data.
+* Verify the Home Dashboard reads real values from `dataset_summary.json`.
+* Check responsiveness and horizontal overflow.
+* Confirm that no files outside `frontend/` were modified.
+
+Do not claim a feature or test works unless it has actually been verified.
+
+## Final Deliverable
+
+Deliver a clean React application with these pages:
+
+1. Home Dashboard
+2. AI Assistant
+3. Network Performance & Fault Prediction
+4. Evaluations
+
+The three primary navigation actions must be prominently displayed at the top, with the demo user menu aligned at the right.
+
+**Final design priority:** proper alignment, clear page naming, compact data cards, readable charts, simple React code, and a consistent black, dark teal, and turquoise theme. Build a neat application, not an overcomplicated enterprise dashboard.

@@ -1,0 +1,47 @@
+{
+  "dataset_path": "D:\\raksha\\capstone\\try2\\data\\telecom_network_incidents_with_id.csv",
+  "models": {
+    "network_performance_model": {
+      "model_name": "network_performance_model",
+      "target": "Throughput (Mbps)",
+      "training_samples": 80000,
+      "testing_samples": 20000,
+      "feature_count": 24,
+      "metrics": {
+        "R2": 0.9971696540870485,
+        "Adjusted_R2": 0.9971662534211205,
+        "MAE": 9.190543879970702,
+        "MSE": 162.68010798479992,
+        "RMSE": 12.754611243969764,
+        "MAPE_percent": 1.6845863282803364,
+        "Explained_Variance": 0.9971697187906231,
+        "Training_R2": 0.998214706717117,
+        "Testing_R2": 0.9971696540870485,
+        "Train_Test_R2_Gap": 0.0010450526300684881
+      },
+      "quality": "Excellent",
+      "generalization": "Good Generalization"
+    },
+    "fault_tolerance_model": {
+      "model_name": "fault_tolerance_model",
+      "target": "Fault Occurrence Rate (%)",
+      "training_samples": 80000,
+      "testing_samples": 20000,
+      "feature_count": 22,
+      "metrics": {
+        "R2": 0.9997299214668767,
+        "Adjusted_R2": 0.9997296240384476,
+        "MAE": 0.16652079425342295,
+        "MSE": 0.05333066642732997,
+        "RMSE": 0.23093433358279572,
+        "MAPE_percent": 1.170352013370876,
+        "Explained_Variance": 0.9997299442537729,
+        "Training_R2": 0.9998646857988835,
+        "Testing_R2": 0.9997299214668767,
+        "Train_Test_R2_Gap": 0.00013476433200687588
+      },
+      "quality": "Excellent",
+      "generalization": "Good Generalization"
+    }
+  }
+}

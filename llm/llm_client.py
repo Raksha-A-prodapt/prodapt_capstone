@@ -298,14 +298,25 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+AICREDITS_URL = "https://api.aicredits.in/v1/chat/completions"
+DEFAULT_AICREDITS_MODEL = "google/gemini-3.1-flash-lite"
 
 
 class LLMClient:
 
     def __init__(self):
-
-        self.api_key = os.getenv("OPENROUTER_API_KEY1")
-        self.model = os.getenv("OPENROUTER_MODEL")
+        self.provider = os.getenv("LLM_PROVIDER", "aicredits").strip().lower()
+        self.last_provider = None
+        self.ai_credits_model = os.getenv(
+            "AICREDITS_MODEL",
+            os.getenv("DEEPEVAL_MODEL", DEFAULT_AICREDITS_MODEL),
+        )
+        self.openrouter_model = os.getenv("OPENROUTER_MODEL", "")
+        self.model = (
+            self.ai_credits_model
+            if self.provider in {"aicredits", "ai_credits", "aicredit"}
+            else self.openrouter_model
+        )
 
         self.temperature = float(
             os.getenv("LLM_TEMPERATURE", "0.2")
@@ -317,14 +328,25 @@ class LLMClient:
             os.getenv("LLM_TIMEOUT", "30")
         )
 
-        if not self.api_key:
-            raise ValueError(
-                "OPENROUTER_API_KEY1 is missing in .env"
+        if self.provider in {"aicredits", "ai_credits", "aicredit"}:
+            self.api_key = os.getenv("ai_credits_api_key") or os.getenv(
+                "AI_CREDITS_API_KEY"
             )
-
-        if not self.model:
+            self.base_url = os.getenv("AICREDITS_BASE_URL", AICREDITS_URL)
+            self.provider_name = "AICredits Gemini"
+            if not self.api_key:
+                raise ValueError("ai_credits_api_key is missing in .env")
+        elif self.provider == "openrouter":
+            self.api_key = os.getenv("OPENROUTER_API_KEY1")
+            self.base_url = OPENROUTER_URL
+            self.provider_name = "OpenRouter"
+            if not self.api_key:
+                raise ValueError("OPENROUTER_API_KEY1 is missing in .env")
+            if not self.model:
+                raise ValueError("OPENROUTER_MODEL is missing in .env")
+        else:
             raise ValueError(
-                "OPENROUTER_MODEL is missing in .env"
+                f"Unsupported LLM_PROVIDER={self.provider!r}; use aicredits or openrouter"
             )
 
     def generate(self, system_prompt, user_prompt):
@@ -332,9 +354,14 @@ class LLMClient:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "http://localhost:8000",
-            "X-Title": "Telecom Network RAG",
         }
+        if self.provider == "openrouter":
+            headers.update(
+                {
+                    "HTTP-Referer": "http://localhost:8000",
+                    "X-Title": "Telecom Network RAG",
+                }
+            )
 
         payload = {
             "model": self.model,
@@ -353,12 +380,13 @@ class LLMClient:
         }
 
         print("\n[LLM]")
+        print(f"Provider: {self.provider_name}")
         print(f"Model: {self.model}")
 
         try:
 
             response = requests.post(
-                OPENROUTER_URL,
+                self.base_url,
                 headers=headers,
                 json=payload,
                 timeout=self.timeout,
@@ -374,6 +402,8 @@ class LLMClient:
                 raise ValueError("LLM returned an empty response.")
 
             print("[LLM] SUCCESS")
+
+            self.last_provider = self.provider_name
 
             return answer
 

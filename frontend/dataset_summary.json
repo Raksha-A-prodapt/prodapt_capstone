@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "source": {
+    "file": "data/telecom_network_incidents_with_id.csv",
+    "record_count": 100000,
+    "column_count": 28,
+    "description": "Static summary of the historical telecom incident dataset. These values are not live network measurements."
+  },
+  "kpis": [
+    {
+      "id": "total_incidents",
+      "label": "Historical incidents",
+      "value": 100000,
+      "unit": "records"
+    },
+    {
+      "id": "reported_incidents",
+      "label": "Issue reported",
+      "value": 49889,
+      "unit": "records",
+      "percent": 49.89
+    },
+    {
+      "id": "average_latency",
+      "label": "Average latency",
+      "value": 79.22,
+      "unit": "ms"
+    },
+    {
+      "id": "average_throughput",
+      "label": "Average throughput",
+      "value": 586.57,
+      "unit": "Mbps"
+    },
+    {
+      "id": "locations",
+      "label": "Cities represented",
+      "value": 38066,
+      "unit": "cities"
+    },
+    {
+      "id": "states",
+      "label": "States/regions represented",
+      "value": 59,
+      "unit": "states/regions"
+    }
+  ],
+  "charts": {
+    "incidents_by_season": [
+      {
+        "category": "Fall",
+        "count": 25117
+      },
+      {
+        "category": "Spring",
+        "count": 25106
+      },
+      {
+        "category": "Summer",
+        "count": 24836
+      },
+      {
+        "category": "Winter",
+        "count": 24941
+      }
+    ],
+    "issue_reported_distribution": [
+      {
+        "category": "Yes",
+        "count": 49889,
+        "percent": 49.89
+      },
+      {
+        "category": "No",
+        "count": 50111,
+        "percent": 50.11
+      }
+    ],
+    "incidents_by_weather": [
+      {
+        "category": "Clouds",
+        "count": 31392
+      },
+      {
+        "category": "Rain",
+        "count": 31204
+      },
+      {
+        "category": "Clear",
+        "count": 31185
+      },
+      {
+        "category": "Snow",
+        "count": 6219
+      }
+    ],
+    "seasonal_metric_averages": [
+      {
+        "season": "Fall",
+        "incident_count": 25117,
+        "latency_ms": 76.78,
+        "throughput_mbps": 604.47,
+        "packet_loss_percent": 6.29,
+        "fault_occurrence_percent": 36.85
+      },
+      {
+        "season": "Spring",
+        "incident_count": 25106,
+        "latency_ms": 79.37,
+        "throughput_mbps": 602.99,
+        "packet_loss_percent": 6.34,
+        "fault_occurrence_percent": 36.94
+      },
+      {
+        "season": "Summer",
+        "incident_count": 24836,
+        "latency_ms": 84.57,
+        "throughput_mbps": 601.5,
+        "packet_loss_percent": 6.31,
+        "fault_occurrence_percent": 36.98
+      },
+      {
+        "season": "Winter",
+        "incident_count": 24941,
+        "latency_ms": 76.18,
+        "throughput_mbps": 537.17,
+        "packet_loss_percent": 6.89,
+        "fault_occurrence_percent": 41.89
+      }
+    ]
+  }
+}

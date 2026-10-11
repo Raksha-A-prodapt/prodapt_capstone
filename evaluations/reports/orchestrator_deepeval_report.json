@@ -1,0 +1,98 @@
+{
+  "status": "passed",
+  "framework": "DeepEval",
+  "evaluation_type": "llm_judged_quality_and_deterministic_contract_and_evidence_metrics",
+  "llm_as_judge_used": true,
+  "judge_model": "openrouter/free",
+  "test_case_count": 3,
+  "metric_count": 9,
+  "passed_metrics": 9,
+  "failed_metrics": 0,
+  "metrics": [
+    {
+      "test_case": "metrics_missing_sop_skipped",
+      "name": "Frontend Response Contract",
+      "score": 1.0,
+      "success": true,
+      "reason": "The frontend response has all required sections and fields."
+    },
+    {
+      "test_case": "metrics_missing_sop_skipped",
+      "name": "Evidence and Agent Flow",
+      "score": 1.0,
+      "success": true,
+      "reason": "RCA and recommendation outputs follow the retrieved evidence flow."
+    },
+    {
+      "test_case": "metrics_missing_sop_skipped",
+      "name": "Orchestrator Response Quality [GEval]",
+      "score": 1.0,
+      "success": true,
+      "reason": "The response addresses the query 'Summarize historical latency incidents' with clear, internally consistent structured sections. Factual claims are supported by the retrieved incident evidence (INC-EVAL-001 with latency_ms 82.0, packet_loss_rate 5.0, call_drop_rate 1.2), and the root-cause analysis correctly distinguishes the leading hypothesis (latency/congestion, score 0.81) from a confirmed cause. Prediction availability is accurately described as not_applicable due to absent current network metrics, and recommendation availability is accurately described as not_requested per the user's query. All four evaluation steps are satisfied with specific, well-grounded details."
+    },
+    {
+      "test_case": "prediction_and_recommendation_requested",
+      "name": "Frontend Response Contract",
+      "score": 1.0,
+      "success": true,
+      "reason": "The frontend response has all required sections and fields."
+    },
+    {
+      "test_case": "prediction_and_recommendation_requested",
+      "name": "Evidence and Agent Flow",
+      "score": 1.0,
+      "success": true,
+      "reason": "RCA and recommendation outputs follow the retrieved evidence flow."
+    },
+    {
+      "test_case": "prediction_and_recommendation_requested",
+      "name": "Orchestrator Response Quality [GEval]",
+      "score": 0.8,
+      "success": true,
+      "reason": "The response comprehensively addresses the latency query with well‑structured sections, clear predictions, a root‑cause analysis that correctly labels latency/congestion as a hypothesis rather than a confirmed cause, and a recommendation to review alarms. The JSON includes matching sections and retrieval metadata, demonstrating internal consistency. However, the numeric predictions (315.4 Mbps throughput, 14.2 % fault risk) are not explicitly tied to the supplied incident evidence, and the recommendation is generic, which weakens the evidential support."
+    },
+    {
+      "test_case": "recommendation_requested_without_predictions",
+      "name": "Frontend Response Contract",
+      "score": 1.0,
+      "success": true,
+      "reason": "The frontend response has all required sections and fields."
+    },
+    {
+      "test_case": "recommendation_requested_without_predictions",
+      "name": "Evidence and Agent Flow",
+      "score": 1.0,
+      "success": true,
+      "reason": "RCA and recommendation outputs follow the retrieved evidence flow."
+    },
+    {
+      "test_case": "recommendation_requested_without_predictions",
+      "name": "Orchestrator Response Quality [GEval]",
+      "score": 0.9,
+      "success": true,
+      "reason": "The response correctly frames latency/congestion as a leading hypothesis rather than a confirmed cause, accurately explains that network predictions were not executed because no metrics were available, and offers a concrete recommendation to review alarms on the affected segment. These elements satisfy the evaluation steps, though the troubleshooting guidance is relatively narrow."
+    }
+  ],
+  "flow_chart": [
+    "User query",
+    "QuerySynaptAgent: guardrail, parsing, historical retrieval",
+    "NetworkPredictionAgent: optional when current metrics are supplied",
+    "RCAAgent: compare retrieved evidence with available metrics/predictions",
+    "RecommendationAgent: retrieve SOP only when recommendations are requested",
+    "Frontend response: final_answer plus prediction, RCA, history, recommendation sections",
+    "LLM-as-judge: evaluate the assembled response for query relevance, clarity, evidence, and appropriate uncertainty"
+  ],
+  "evaluation_flow_chart": [
+    "Three controlled orchestrator response fixtures",
+    "LLM judge: GEval assesses answer quality, evidence use, and appropriate uncertainty",
+    "Frontend Response Contract metric: schema version, agent identity, final answer, four sections and required fields",
+    "Evidence and Agent Flow metric: RCA incident references, SOP lookup gating, and recommendation-to-procedure links",
+    "Record per-case metric score, pass/fail status, and reason",
+    "Save all results and both flow charts to evaluations/reports/orchestrator_deepeval_report.json"
+  ],
+  "metric_descriptions": {
+    "Orchestrator Response Quality": "LLM-judged relevance, clarity, consistency, evidence grounding, and appropriate uncertainty about predictions and recommendations.",
+    "Frontend Response Contract": "Checks schema_version, orchestrator identity, final_answer, and prediction/RCA/history/recommendation section fields.",
+    "Evidence and Agent Flow": "Checks RCA incident references against retrieved incidents, ensures SOP retrieval follows query intent, and checks that recommendations reference retrieved procedures."
+  }
+}
