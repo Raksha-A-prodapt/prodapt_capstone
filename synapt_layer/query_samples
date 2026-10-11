@@ -1,0 +1,17 @@
+What metrics can indicate network congestion?
+Answer:
+        Metrics that can indicate network congestion include:
+
+        User Count
+        Data Usage (GB)
+        Throughput (Mbps), especially if it is degrading
+        Latency (ms), especially if it is elevated
+        Packet Loss Rate (%)
+        The context suggests looking at these together: high user/data traffic with lower throughput, higher latency, and higher packet loss can point to possible congestion or capacity pressure. Reviewing alarms and comparing against similar historical observations can also help confirm the pattern.
+
+        Note: this answer draws on graph data flagged as low-confidence or incompletely connected -- treat it with appropriate caution.
+
+
+
+
+     

@@ -40,7 +40,8 @@ ENV/
 chroma_db/
 .chroma/
 chroma.sqlite3
-
+rag/chroma_db/
+rag/chromadb/
 
 # ============================================================
 # Generated embeddings / vector artifacts
@@ -117,4 +118,8 @@ models/
 # *.pkl
 # *.joblib
 # *.pt
-# *.pth
+# *.pthrag/chroma_db/
+rag/chroma_db/
+rag/chromadb/
+chroma_db/
+chromadb/
