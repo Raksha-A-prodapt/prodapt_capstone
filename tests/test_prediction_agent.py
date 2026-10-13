@@ -33,7 +33,7 @@ def test_agent_runs_two_models_from_one_input_and_chains_throughput() -> None:
     result = agent.process(features, query="predict")
     assert result["status"] == "success"
     assert result["trace"]["single_shared_input"] is True
-    assert result["trace"]["fault_chain_used"] == "predicted_throughput"
+    assert result["trace"]["fault_chain_used"] == "predicted_performance_kpis"
     assert result["trace"]["models_called"] == ["network_performance_model", "fault_occurrence_prediction_model"]
     assert result["prediction"]["network_performance"]["classification"]["overall_risk"] == "Low"
     assert result["prediction"]["fault_risk"]["predicted_fault_occurrence_rate_percent"] == 12.5

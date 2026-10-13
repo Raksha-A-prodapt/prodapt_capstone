@@ -1,0 +1,67 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 3267 >>
+stream
+BT
+/F1 17 Tf 1 0 0 1 54 744 Tm (Telecom Network Operations Assistant - Dataset Details) Tj
+/F1 11 Tf 1 0 0 1 54 715 Tm (Dataset identity) Tj
+/F1 9 Tf 1 0 0 1 54 700 Tm (Primary source: data/telecom_network_incidents_with_id.csv.) Tj
+/F1 9 Tf 1 0 0 1 54 685 Tm (Observed rows: 100,000; observed columns: 28.) Tj
+/F1 9 Tf 1 0 0 1 54 670 Tm (The dataset represents telecom network incidents/observations across performance, operations, load,) Tj
+/F1 9 Tf 1 0 0 1 54 655 Tm (signal, environment, security, geography, and fault-risk fields.) Tj
+/F1 11 Tf 1 0 0 1 54 635 Tm (Schema and field groups) Tj
+/F1 9 Tf 1 0 0 1 54 620 Tm (The canonical schema is files_load_context_files/schema.json and the normalized schema is) Tj
+/F1 9 Tf 1 0 0 1 54 605 Tm (files_load_context_files/schema.jsonl.) Tj
+/F1 9 Tf 1 0 0 1 54 590 Tm (Context and geography: Incident_ID, Season, Weather, Issue Reported, City, State, Zip.) Tj
+/F1 9 Tf 1 0 0 1 54 575 Tm (Performance: Cell Availability, Throughput, Latency, Packet Loss Rate, Call Drop Rate, Handover Success) Tj
+/F1 9 Tf 1 0 0 1 54 560 Tm (Rate, Jitter, Connection Setup Success Rate.) Tj
+/F1 9 Tf 1 0 0 1 54 545 Tm (Operations: MTTR, Alarm Count, Critical Alarm Count, Parameter Changes, Successful Configuration Changes.) Tj
+/F1 9 Tf 1 0 0 1 54 530 Tm (Load and environment: Data Usage, User Count, Signal Strength, Temperature, Humidity.) Tj
+/F1 9 Tf 1 0 0 1 54 515 Tm (Security and target: Security Incidents, Authentication Failures, Fault Occurrence Rate.) Tj
+/F1 11 Tf 1 0 0 1 54 495 Tm (Data quality and usage) Tj
+/F1 9 Tf 1 0 0 1 54 480 Tm (The Synapt knowledge context describes the source dataset as 100,000 rows with 27 columns and no missing) Tj
+/F1 9 Tf 1 0 0 1 54 465 Tm (values; verify against the current CSV before production use.) Tj
+/F1 9 Tf 1 0 0 1 54 450 Tm (Historical retrieval uses metadata/numeric filters plus semantic and lexical ranking; historical averages) Tj
+/F1 9 Tf 1 0 0 1 54 435 Tm (are descriptive and are not live telemetry.) Tj
+/F1 9 Tf 1 0 0 1 54 420 Tm (The dataset contains synthetic/project data and should not be presented as a live operator network feed.) Tj
+/F1 11 Tf 1 0 0 1 54 400 Tm (Embedding and retrieval) Tj
+/F1 9 Tf 1 0 0 1 54 385 Tm (Local embedding model: BAAI/bge-small-en-v1.5 through sentence-transformers.) Tj
+/F1 9 Tf 1 0 0 1 54 370 Tm (Vector store: ChromaDB; lexical retrieval: rank-bm25; orchestration combines semantic and lexical) Tj
+/F1 9 Tf 1 0 0 1 54 355 Tm (evidence.) Tj
+/F1 9 Tf 1 0 0 1 54 340 Tm (The project also contains older commented OpenRouter embedding code; the active embedding path is local) Tj
+/F1 9 Tf 1 0 0 1 54 325 Tm (BGE.) Tj
+/F1 11 Tf 1 0 0 1 54 305 Tm (Prediction features) Tj
+/F1 9 Tf 1 0 0 1 54 290 Tm (Throughput prediction uses performance, operational, load, signal, environmental, security, and) Tj
+/F1 9 Tf 1 0 0 1 54 275 Tm (categorical context features.) Tj
+/F1 9 Tf 1 0 0 1 54 260 Tm (Fault-risk prediction uses throughput, performance, operational, load, signal, environmental, and) Tj
+/F1 9 Tf 1 0 0 1 54 245 Tm (security features.) Tj
+/F1 9 Tf 1 0 0 1 54 230 Tm (Models run only when the required live feature set is supplied; missing telemetry must not be silently) Tj
+/F1 9 Tf 1 0 0 1 54 215 Tm (imputed as current truth.) Tj
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000185 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3630
+%%EOF

@@ -62,9 +62,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, Optional
 import json
+import re
 
 import joblib
 import pandas as pd
+
+from classification import classify_network_performance
 
 from config.prediction_config import (
     THROUGHPUT_MODEL_PATH,
@@ -145,6 +148,7 @@ class NetworkPredictionAgent:
         self,
         network_features: Optional[Dict[str, Any]] = None,
         query: Optional[str] = None,
+        prediction_mode: str = "network_performance",
     ) -> Dict[str, Any]:
         """
         Run the prediction agent.
@@ -165,53 +169,81 @@ class NetworkPredictionAgent:
             Structured prediction result.
         """
 
+        if prediction_mode not in {"network_performance", "fault_tolerance"}:
+            raise ValueError(
+                "prediction_mode must be 'network_performance' or 'fault_tolerance'."
+            )
+
         if not network_features:
             return self._not_applicable(
                 reason="No network features were provided.",
                 query=query,
+                prediction_mode=prediction_mode,
             )
 
+        performance_features = self._model_features(
+            self.throughput_model,
+            THROUGHPUT_FEATURES,
+        )
+        fault_features = self._model_features(self.fault_model, FAULT_FEATURES)
         throughput_ready = self._has_all_features(
             network_features,
-            THROUGHPUT_FEATURES,
+            performance_features,
         )
 
         fault_ready = self._has_all_features(
             network_features,
-            FAULT_FEATURES,
+            fault_features,
         )
 
-        if not throughput_ready and not fault_ready:
+        if prediction_mode == "network_performance" and not throughput_ready:
             return self._not_applicable(
                 reason=(
-                    "Required features for both prediction models "
-                    "are missing."
+                    "Required features for the network-performance model are missing."
                 ),
                 query=query,
                 missing_features={
                     "throughput_model": self._missing_features(
                         network_features,
-                        THROUGHPUT_FEATURES,
+                        performance_features,
                     ),
                     "fault_model": self._missing_features(
                         network_features,
-                        FAULT_FEATURES,
+                        fault_features,
                     ),
                 },
+                prediction_mode=prediction_mode,
+            )
+
+        if prediction_mode == "fault_tolerance" and not fault_ready:
+            return self._not_applicable(
+                reason="Required features for the fault-tolerance model are missing.",
+                query=query,
+                missing_features={
+                    "fault_model": self._missing_features(
+                        network_features,
+                        fault_features,
+                    ),
+                },
+                prediction_mode=prediction_mode,
             )
 
         result = {
             "agent": "NetworkPredictionAgent",
             "status": "success",
             "query": query,
+            "prediction_mode": prediction_mode,
             "prediction": {},
             "display": {},
             "evidence": [],
             "trace": {
                 "agent": "NetworkPredictionAgent",
+                "prediction_mode": prediction_mode,
                 "models_called": [],
                 "models_skipped": [],
                 "input_feature_count": len(network_features),
+                "single_shared_input": True,
+                "fault_chain_used": "none",
             },
         }
 
@@ -219,10 +251,11 @@ class NetworkPredictionAgent:
         # Throughput prediction
         # -------------------------------------------------
 
-        if throughput_ready:
+        if prediction_mode == "network_performance" and throughput_ready:
             try:
                 performance = self._predict_throughput(
-                    network_features
+                    network_features,
+                    performance_features,
                 )
 
                 result["prediction"]["network_performance"] = (
@@ -238,7 +271,7 @@ class NetworkPredictionAgent:
                 )
 
                 result["trace"]["models_called"].append(
-                    "throughput_prediction_model"
+                    "network_performance_model"
                 )
 
             except Exception as exc:
@@ -249,22 +282,59 @@ class NetworkPredictionAgent:
                 }
 
                 result["trace"]["models_skipped"].append(
-                    "throughput_prediction_model"
+                    "network_performance_model"
                 )
 
-        else:
+        elif prediction_mode == "network_performance":
             result["trace"]["models_skipped"].append(
-                "throughput_prediction_model"
+                "network_performance_model"
             )
+        else:
+            result["trace"]["models_skipped"].append("network_performance_model")
 
         # -------------------------------------------------
         # Fault occurrence prediction
         # -------------------------------------------------
 
+        fault_input = dict(network_features)
+        if prediction_mode == "network_performance":
+            predictions = (
+                result.get("prediction", {})
+                .get("network_performance", {})
+                .get("predictions", {})
+            )
+            prediction_to_feature = {
+                "Throughput (Mbps)": "Throughput (Mbps)",
+                "Latency (ms)": "Latency (ms)",
+                "Packet Loss Rate (%)": "Packet Loss Rate (%)",
+                "Call Drop Rate (%)": "Call Drop Rate (%)",
+                "Handover Success Rate (%)": "Handover Success Rate (%)",
+                "Jitter (ms)": "Jitter (ms)",
+                "Connection Setup Success Rate (%)": "Connection Setup Success Rate (%)",
+            }
+            for kpi, feature in prediction_to_feature.items():
+                if kpi in predictions:
+                    fault_input[feature] = predictions[kpi]
+            performance_complete = len(predictions) == 7
+            if performance_complete and all(
+                self._feature_value(fault_input, feature) is not None
+                for feature in fault_features
+            ):
+                result["trace"]["fault_chain_used"] = "predicted_performance_kpis"
+            else:
+                result["trace"]["fault_chain_used"] = "partial_input"
+            fault_ready = performance_complete and self._has_all_features(
+                fault_input,
+                fault_features,
+            )
+        else:
+            fault_ready = self._has_all_features(fault_input, fault_features)
+
         if fault_ready:
             try:
                 fault = self._predict_fault_occurrence(
-                    network_features
+                    fault_input,
+                    fault_features,
                 )
 
                 result["prediction"]["fault_risk"] = fault
@@ -309,20 +379,43 @@ class NetworkPredictionAgent:
     def _predict_throughput(
         self,
         network_features: Dict[str, Any],
+        model_features: Optional[list[str]] = None,
     ) -> Dict[str, Any]:
 
         df = pd.DataFrame(
             [
                 {
-                    feature: network_features[feature]
-                    for feature in THROUGHPUT_FEATURES
+                    feature: self._feature_value(network_features, feature)
+                    for feature in (model_features or THROUGHPUT_FEATURES)
                 }
             ]
         )
 
-        prediction = self.throughput_model.predict(df)[0]
-
-        predicted_throughput = float(prediction)
+        raw_prediction = self.throughput_model.predict(df)
+        prediction = raw_prediction[0]
+        if hasattr(prediction, "tolist"):
+            prediction = prediction.tolist()
+        values = prediction if isinstance(prediction, (list, tuple)) else [prediction]
+        if len(values) == 1 and isinstance(values[0], (list, tuple)):
+            values = list(values[0])
+        try:
+            values = list(values)
+        except TypeError:
+            values = [values]
+        performance_targets = [
+            "Throughput (Mbps)",
+            "Latency (ms)",
+            "Packet Loss Rate (%)",
+            "Call Drop Rate (%)",
+            "Handover Success Rate (%)",
+            "Jitter (ms)",
+            "Connection Setup Success Rate (%)",
+        ]
+        predictions = {
+            target: round(float(value), ROUND_DIGITS)
+            for target, value in zip(performance_targets, values)
+        }
+        predicted_throughput = predictions.get("Throughput (Mbps)")
 
         # If actual throughput was supplied, compare it with
         # expected throughput.
@@ -333,13 +426,13 @@ class NetworkPredictionAgent:
         result: Dict[str, Any] = {
             "status": "success",
             "target": THROUGHPUT_TARGET,
-            "predicted_throughput_mbps": round(
-                predicted_throughput,
-                ROUND_DIGITS,
-            ),
+            "predictions": predictions,
+            "predicted_throughput_mbps": predicted_throughput,
+            "predicted_kpi_count": len(predictions),
         }
+        result["classification"] = classify_network_performance(predictions)
 
-        if actual is not None:
+        if actual is not None and predicted_throughput is not None:
             actual = float(actual)
 
             result["actual_throughput_mbps"] = round(
@@ -385,13 +478,14 @@ class NetworkPredictionAgent:
     def _predict_fault_occurrence(
         self,
         network_features: Dict[str, Any],
+        model_features: Optional[list[str]] = None,
     ) -> Dict[str, Any]:
 
         df = pd.DataFrame(
             [
                 {
-                    feature: network_features[feature]
-                    for feature in FAULT_FEATURES
+                    feature: self._feature_value(network_features, feature)
+                    for feature in (model_features or FAULT_FEATURES)
                 }
             ]
         )
@@ -577,12 +671,26 @@ class NetworkPredictionAgent:
         data: Dict[str, Any],
         features: list,
     ) -> bool:
+        return all(NetworkPredictionAgent._feature_value(data, feature) is not None for feature in features)
 
-        return all(
-            feature in data
-            and data[feature] is not None
-            for feature in features
-        )
+    @staticmethod
+    def _normalize_feature_name(name: str) -> str:
+        return re.sub(r"[^a-z0-9]+", "", str(name).lower())
+
+    @classmethod
+    def _feature_value(cls, data: Dict[str, Any], feature: str) -> Any:
+        if feature in data and data[feature] is not None:
+            return data[feature]
+        wanted = cls._normalize_feature_name(feature)
+        for key, value in data.items():
+            if value is not None and cls._normalize_feature_name(key) == wanted:
+                return value
+        return None
+
+    @staticmethod
+    def _model_features(model: Any, fallback: list[str]) -> list[str]:
+        names = getattr(model, "feature_names_in_", None)
+        return [str(name) for name in names] if names is not None else list(fallback)
 
     @staticmethod
     def _missing_features(
@@ -593,8 +701,7 @@ class NetworkPredictionAgent:
         return [
             feature
             for feature in features
-            if feature not in data
-            or data[feature] is None
+            if NetworkPredictionAgent._feature_value(data, feature) is None
         ]
 
     # =====================================================
@@ -606,12 +713,14 @@ class NetworkPredictionAgent:
         reason: str,
         query: Optional[str] = None,
         missing_features: Optional[Dict[str, Any]] = None,
+        prediction_mode: str = "network_performance",
     ) -> Dict[str, Any]:
 
         return {
             "agent": "NetworkPredictionAgent",
             "status": "not_applicable",
             "query": query,
+            "prediction_mode": prediction_mode,
 
             "prediction": {
                 "network_performance": {
@@ -636,7 +745,7 @@ class NetworkPredictionAgent:
                 "agent": "NetworkPredictionAgent",
                 "models_called": [],
                 "models_skipped": [
-                    "throughput_prediction_model",
+                    "network_performance_model",
                     "fault_occurrence_prediction_model",
                 ],
                 "skipped": True,

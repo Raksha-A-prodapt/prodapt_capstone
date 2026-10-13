@@ -98,7 +98,7 @@ domain knwoledge json file:
       "to": "potential_network_fault"
     }
   ]
-}, then oincident knowldege.jsonfile has {
+}, then incident knowldege.jsonfile has {
   "knowledge_type": "historical_incident_knowledge",
   "source_dataset": {
     "name": "telecom_network_incidents",
@@ -222,7 +222,7 @@ domain knwoledge json file:
     "Do not treat correlation between metrics as proven causation.",
     "Use the original dataset values as the source of truth for retrieved historical observations."
   ]
-}, then i have schema json {
+}, then i have schema jsonl {
   "dataset_name": "telecom_network_incidents",
   "description": "Telecom network dataset containing 100,000 network observations with network performance, availability, operational, security, environmental, geographic, and fault-related attributes.",
   "row_count": 100000,

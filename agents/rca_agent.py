@@ -808,7 +808,8 @@ class RCAAgent:
             return item
 
         return {}
-
+#metric_severity() function, the current metric is compared with values loaded from your CSV dataset, 
+# provided those values are passed as reference_values.
     @classmethod
     def _metric_severity(
         cls,
@@ -840,7 +841,7 @@ class RCAAgent:
             severity = percentile
 
         return max(0.0, min(1.0, severity))
-
+#hecks how strongly a retrieved incident matches the user's query, based on its hybrid retrieval score.
     @staticmethod
     def _retrieval_score(item: Dict[str, Any]) -> float:
         scores = item.get("scores")
@@ -858,7 +859,7 @@ class RCAAgent:
             return 0.5
 
         return max(0.0, min(1.0, score))
-
+#How abnormal is the current metric?
     def _current_alignment(
         self,
         metric: str,

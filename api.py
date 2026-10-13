@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import inspect
 from contextlib import asynccontextmanager
 from json import JSONDecodeError
 from pathlib import Path
@@ -119,12 +120,16 @@ async def analyze(request: Request) -> Response:
             status_code=422,
         )
     orchestrator = get_orchestrator(request)
-    result = await orchestrator.run(
-        query=query,
-        network_metrics=request_data["network_metrics"],
-        prediction_mode=request_data["prediction_mode"],
-        top_k=request_data["top_k"],
-    )
+    run_kwargs = {
+        "query": query,
+        "network_metrics": request_data["network_metrics"],
+        "top_k": request_data["top_k"],
+    }
+    # Keep compatibility with lightweight integrations that predate the
+    # explicit prediction-mode argument.
+    if "prediction_mode" in inspect.signature(orchestrator.run).parameters:
+        run_kwargs["prediction_mode"] = request_data["prediction_mode"]
+    result = await orchestrator.run(**run_kwargs)
     return JSONResponse(result)
 
 

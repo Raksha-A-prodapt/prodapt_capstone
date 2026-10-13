@@ -1,0 +1,73 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 3663 >>
+stream
+BT
+/F1 17 Tf 1 0 0 1 54 744 Tm (Telecom Network Operations Assistant - API Documentation) Tj
+/F1 11 Tf 1 0 0 1 54 715 Tm (Service topology) Tj
+/F1 9 Tf 1 0 0 1 54 700 Tm (Synapt MCP bridge: http://127.0.0.1:8000/mcp.) Tj
+/F1 9 Tf 1 0 0 1 54 685 Tm (Starlette backend API: http://127.0.0.1:8001.) Tj
+/F1 9 Tf 1 0 0 1 54 670 Tm (React/Vite frontend: http://127.0.0.1:8790.) Tj
+/F1 11 Tf 1 0 0 1 54 650 Tm (GET /api/health) Tj
+/F1 9 Tf 1 0 0 1 54 635 Tm (Purpose: check backend liveness and whether the orchestrator has initialized.) Tj
+/F1 9 Tf 1 0 0 1 54 620 Tm (Response: { status: 'ok', orchestrator_initialized: boolean }.) Tj
+/F1 11 Tf 1 0 0 1 54 600 Tm (POST /api/analyze) Tj
+/F1 9 Tf 1 0 0 1 54 585 Tm (Purpose: run guardrail, query planning, Synapt context, incident retrieval, prediction or historical) Tj
+/F1 9 Tf 1 0 0 1 54 570 Tm (baseline, RCA, classification, impact, recommendations, summary, and response assembly.) Tj
+/F1 9 Tf 1 0 0 1 54 555 Tm (Request fields: query string required; network_metrics object optional; prediction_mode is) Tj
+/F1 9 Tf 1 0 0 1 54 540 Tm (network_performance or fault_tolerance; top_k is an integer from 1 to 50.) Tj
+/F1 9 Tf 1 0 0 1 54 525 Tm (Prediction behavior: live models run only with required telemetry; without telemetry, evaluation-style) Tj
+/F1 9 Tf 1 0 0 1 54 510 Tm (queries can produce a historical baseline.) Tj
+/F1 9 Tf 1 0 0 1 54 495 Tm (Response: structured JSON containing final_answer, user_answer, sections, trace, execution metadata, and) Tj
+/F1 9 Tf 1 0 0 1 54 480 Tm (optional evaluation output.) Tj
+/F1 11 Tf 1 0 0 1 54 460 Tm (POST /api/predict) Tj
+/F1 9 Tf 1 0 0 1 54 445 Tm (Purpose: run the prediction agent directly without the complete assistant workflow.) Tj
+/F1 9 Tf 1 0 0 1 54 430 Tm (Request: network_metrics object required and prediction_mode optional.) Tj
+/F1 9 Tf 1 0 0 1 54 415 Tm (Response: prediction status, predicted throughput/fault risk, model trace, missing-feature information,) Tj
+/F1 9 Tf 1 0 0 1 54 400 Tm (and model limitations.) Tj
+/F1 11 Tf 1 0 0 1 54 380 Tm (POST /api/classify) Tj
+/F1 9 Tf 1 0 0 1 54 365 Tm (Purpose: classify and prioritize a supplied current metric scenario.) Tj
+/F1 9 Tf 1 0 0 1 54 350 Tm (Request: network_metrics object required.) Tj
+/F1 9 Tf 1 0 0 1 54 335 Tm (Response: configured dataset-relative risk labels and classification details; these are not telecom SLAs.) Tj
+/F1 11 Tf 1 0 0 1 54 315 Tm (POST /api/feedback) Tj
+/F1 9 Tf 1 0 0 1 54 300 Tm (Purpose: save user feedback for a response.) Tj
+/F1 9 Tf 1 0 0 1 54 285 Tm (Request: response_id, query, final_response, rating \(helpful or not_helpful\), and optional) Tj
+/F1 9 Tf 1 0 0 1 54 270 Tm (comment/context.) Tj
+/F1 9 Tf 1 0 0 1 54 255 Tm (Response: accepted status, feedback_id, response_id, and whether it was marked for evaluation.) Tj
+/F1 11 Tf 1 0 0 1 54 235 Tm (Example /api/analyze request) Tj
+/F1 9 Tf 1 0 0 1 54 220 Tm ({ "query": "Calculate historical averages for high latency and packet loss, assess network impact, and) Tj
+/F1 9 Tf 1 0 0 1 54 205 Tm (suggest troubleshooting actions from Synapt SOPs.", "prediction_mode": "network_performance", "top_k": 15) Tj
+/F1 9 Tf 1 0 0 1 54 190 Tm (}) Tj
+/F1 11 Tf 1 0 0 1 54 170 Tm (Error behavior) Tj
+/F1 9 Tf 1 0 0 1 54 155 Tm (Invalid JSON or validation errors return HTTP 400/422 with a detail field.) Tj
+/F1 9 Tf 1 0 0 1 54 140 Tm (Prediction model execution errors return HTTP 500 with a safe error message and diagnostic field.) Tj
+/F1 9 Tf 1 0 0 1 54 125 Tm (The API is configured for local frontend origins on port 8790 and should remain bound to localhost during) Tj
+/F1 9 Tf 1 0 0 1 54 110 Tm (development.) Tj
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000185 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+4026
+%%EOF

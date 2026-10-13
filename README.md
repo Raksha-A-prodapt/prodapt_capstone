@@ -1,80 +1,204 @@
 # Telecom Network Operations Assistant
 
-See [APPLICATION_FLOW.md](./APPLICATION_FLOW.md) for the full request flow,
-agent responsibilities, service ports, and data/trust boundaries.
+## About the application
 
-## LLM provider
+This project is a telecom network analysis assistant for investigating network incidents and operational performance. It combines historical incident retrieval, Synapt telecom-domain knowledge, optional live network prediction models, RCA hypotheses, impact analysis, incident classification, and Synapt SOP retrieval.
 
-The active `LLMClient` uses Anthropic's Claude Messages API. It reads
-`claude_api_key` from the project `.env` file and defaults to
-`claude-haiku-5-5`; optionally set `CLAUDE_MODEL` to select another model
-available to your Anthropic account. Keep API keys private and out of source
-control.
+The application supports two analysis modes:
 
-## Run Synapt, the API, and the web interface
+- **Live analysis:** current telemetry is supplied and the throughput/fault-risk prediction models can run.
+- **Historical analysis:** no telemetry is supplied; filtered historical averages are shown as a clearly labelled baseline, not as a live prediction.
 
-Install the project dependencies in the active virtual environment:
+The result is shown as an answer summary, evidence, RCA, network impact, historical evaluation, prediction or baseline status, and recommended actions.
+
+## Project setup
+
+### Prerequisites
+
+- Python 3.10 or newer
+- Node.js and npm
+- Synapt MCP credentials
+- An AICredits API key for query planning and response summarization
+
+### Install dependencies
+
+From the project root:
 
 ```powershell
 .\venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Keep the Synapt MCP server on port `8000`. In a separate terminal, start the
-project API on port `8001`:
+Install the Synapt MCP bundle dependencies:
 
 ```powershell
-.\venv\Scripts\python.exe -m uvicorn api:app --reload --port 8001
+cd synapt_mcp_bundle
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+cd ..
 ```
 
-In another terminal, serve the frontend on port `8790`:
+Install frontend dependencies:
 
 ```powershell
-.\venv\Scripts\python.exe -m http.server 8790 --bind 127.0.0.1 --directory frontend
+cd frontend
+npm install
+cd ..
 ```
 
-Open <http://127.0.0.1:8790/> for the browser interface. The API is available
-at <http://127.0.0.1:8001/> and its interactive endpoints are:
+### Configure credentials
 
-- `GET /api/health` — API liveness.
-- `POST /api/analyze` — run the existing retrieval/orchestration flow.
-- `POST /api/classify` — classify and prioritize a current metric scenario.
+Create or update the root `.env` file. Do not commit or share this file.
 
-The frontend is configured to call the API at `http://127.0.0.1:8001`.
-The API allows browser requests from the local frontend origin on port `8790`.
-Synapt's MCP URL remains `http://127.0.0.1:8000/mcp` by default; set
-`SYNAPT_MCP_URL` if its endpoint differs.
+Important root settings:
 
-Example analysis request:
-
-```json
-{
-  "query": "Find winter incidents around Schneiderville where performance degraded badly",
-  "top_k": 5
-}
+```env
+LLM_PROVIDER=aicredits
+ai_credits_api_key=<your-aicredits-key>
+SYNAPT_MCP_URL=http://127.0.0.1:8000/mcp
 ```
 
-Current metrics can optionally be added as a JSON object using the dataset's
-feature names, for example `"Latency (ms)"` or `"Packet Loss Rate (%)"`.
-Prediction models run only when their required input features are supplied.
+The root environment may also contain `LLM_TIMEOUT`, `LLM_MAX_TOKENS`, `LLM_TEMPERATURE`, and `DEEPEVAL_LIVE_ENABLED`.
 
-## Classification and network impact
+Configure `synapt_mcp_bundle/.env` with the registered Synapt identity. Use either client credentials or a temporary session token:
 
-The existing RCA agent remains unchanged: it ranks evidence-linked hypotheses
-and does not establish a confirmed cause. A separate deterministic impact
-assessment now follows RCA in the orchestration graph. It reports observed
-metrics that cross the project's dataset-relative triage cutoffs and explains
-possible service effects as potential, not confirmed, outcomes. Predicted
-throughput is identified as model evidence, not an observation. These cutoffs
-are not telecom SLAs or universal standards.
+```env
+SYNAPT_PROVIDER_ID=<provider-id>
+SYNAPT_AGENT_CLIENT_ID=<client-id>
+SYNAPT_AGENT_CLIENT_SECRET=<client-secret>
+# Or use: SYNAPT_AGENT_TOKEN=<temporary-session-token>
+SYNAPT_VERIFY_SSL=true
+```
 
-Incident prioritization uses the existing classifier on retrieved examples;
-when current metrics are supplied, it also classifies the current scenario.
-This is additive: retrieval ranking, RCA logic, CLI invocation, and existing
-recommendation gating are not changed. The frontend/API exposes the same
-structured sections returned by the orchestrator.
+Never place real keys in source files, README files, screenshots, or commit history. OpenRouter and Claude variables are legacy compatibility settings; the active project provider is AICredits.
 
-## Run focused tests
+## Run the application: three servers
+
+Start each command in a separate terminal and keep all three terminals open.
+
+### 1. Synapt MCP server — port 8000
 
 ```powershell
-.\venv\Scripts\python.exe -m pytest tests\test_api.py tests\test_impact_analysis.py tests\test_orchestrator.py -q
+cd synapt_mcp_bundle
+.\.venv\Scripts\python.exe synapt_mcp_server.py
 ```
+
+Endpoint: `http://127.0.0.1:8000/mcp`
+
+### 2. Backend API — port 8001
+
+From the project root:
+
+```powershell
+.\venv\Scripts\python.exe -m uvicorn api:app --port 8001
+```
+
+Useful endpoints:
+
+- `GET http://127.0.0.1:8001/api/health` — backend health check.
+- `POST http://127.0.0.1:8001/api/analyze` — run the complete analysis flow.
+- `POST http://127.0.0.1:8001/api/classify` — classify supplied metrics.
+
+### 3. React frontend — port 8790
+
+```powershell
+cd frontend
+npm run dev
+```
+
+Open <http://127.0.0.1:8790> in the browser. The frontend calls the backend on port 8001, and the backend calls the local Synapt MCP server on port 8000.
+
+## Sample usage
+
+### Example query
+
+Use this short query in the AI Assistant:
+
+> Calculate historical averages for high latency and packet loss, assess network impact, and suggest troubleshooting actions from Synapt SOPs.
+
+This requests historical evaluation and SOP retrieval. It does not require live telemetry.
+
+### Representative result and recommendations
+
+The application returns evidence-grounded results such as:
+
+- filtered historical averages for latency, packet loss, throughput, call-drop rate, handover success, and fault occurrence when available;
+- potential impact based on the historical baseline, clearly labelled as not current-network observation;
+- an RCA hypothesis based on retrieved incidents, not a confirmed physical cause;
+- Synapt SOP actions such as comparing the condition with historical baselines, checking throughput/user load/data usage, reviewing active and critical alarms, and escalating persistent degradation for engineering investigation.
+
+For live prediction, enter current telemetry in the UI and use:
+
+> Analyze the current cell performance and predict throughput and fault risk.
+
+The prediction models run only when their required live metric fields are provided. Without telemetry, the UI shows a historical baseline or explains why live prediction was not applicable.
+
+## Sample test queries
+
+1. **Winter performance and resolution**
+
+   > What are the reasons for network congestion in Winter, what is the network performance and impact, and how can it be resolved?
+
+2. **Historical baseline and impact**
+
+   > Calculate historical averages for high latency and packet loss, then assess network impact.
+
+3. **SOP retrieval and recommendations**
+
+   > Suggest troubleshooting actions for high latency and packet loss using the relevant Synapt SOPs.
+
+4. **Historical comparison and RCA**
+
+   > Compare the five most relevant historical incidents for packet loss and explain the likely causes.
+
+5. **Winter congestion with SOP actions**
+
+   > Assess Winter network performance, identify likely congestion factors, and suggest recommended actions.
+
+6. **Live prediction and recommendations**
+
+   > Analyze the current cell performance, predict throughput and fault risk, and recommend next actions.
+
+   For query 6, also enter current telemetry such as latency, packet loss, throughput, call-drop rate, handover success, and MTTR in the live metrics fields.
+
+## Main processing flow
+
+```text
+React frontend
+  -> POST /api/analyze
+  -> TelecomAnalysisOrchestrator
+  -> query planning + Synapt domain context
+  -> historical incident retrieval
+  -> optional live prediction or historical baseline
+  -> RCA and incident classification
+  -> network impact assessment
+  -> Synapt SOP retrieval when recommendations are requested
+  -> structured answer and frontend cards
+```
+
+The main implementation files are mapped in [PROJECT_NAVIGATION.md](./PROJECT_NAVIGATION.md). The detailed flow and trust boundaries are documented in [APPLICATION_FLOW.md](./APPLICATION_FLOW.md).
+
+The technical stack is listed in [docs/TECHNICAL_STACK.md](./docs/TECHNICAL_STACK.md). The ready-to-use Claude prompt for the full application-design document is in [docs/CLAUDE_APPLICATION_DESIGN_PROMPT.md](./docs/CLAUDE_APPLICATION_DESIGN_PROMPT.md).
+
+## Evaluation
+
+Evaluation scripts are under `evaluations/`:
+
+- `evaluations/synapt_agent_deepeval.py` — Synapt retrieval/domain evaluation.
+- `evaluations/orchestrator_deepeval.py` — complete response evaluation.
+- `evaluations/ragas_synapt_evaluation.py` — RAGAS evaluation.
+- `evaluations/reports/` — saved evaluation reports displayed by the evaluation page.
+
+Generated documentation PDFs:
+
+- [API Documentation](./docs/api_documentation.pdf)
+- [Evaluation Report](./docs/evaluation_report.pdf)
+- [Dataset Details](./docs/dataset_details.pdf)
+
+The optional RAGAS dependencies are listed in `requirements-ragas.txt`.
+
+## Security and operational notes
+
+- Keep all AICredits and Synapt credentials private.
+- Keep the MCP and API services bound to localhost for local development.
+- Do not treat historical averages as live telemetry or model forecasts.
+- RCA results are evidence-based hypotheses, not confirmed root causes.
+- Impact findings are potential service effects, not confirmed customer impact or SLA determinations.

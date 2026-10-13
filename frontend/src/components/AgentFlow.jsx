@@ -34,6 +34,7 @@ export default function AgentFlow({ isOpen, onClose, analysisResult }) {
     if (stageId === 'query_understanding' || stageId === 'incident_search') {
       return {
         status: value.status,
+        synapt_context: value.synapt_context,
         query_plan: value.query_plan_public,
         filter_diagnostics: value.filter_diagnostics,
         retrieval: value.retrieval,
@@ -279,6 +280,99 @@ export default function AgentFlow({ isOpen, onClose, analysisResult }) {
     }
   };
 
+  const renderQueryAgentFlow = () => {
+    const queryOutput = agentOutputs.query_retrieval || {};
+    const context = queryOutput.synapt_context || trace.synapt_domain_context || {};
+    const plan = queryOutput.query_plan_public || queryOutput.query_plan || {};
+    const retrieval = queryOutput.retrieval || {};
+    const plannerCalled = queryOutput.llm_call_invoked || trace.llm_call_sources?.includes('QuerySynaptAgent.query_planning');
+    const steps = [
+      {
+        number: 1,
+        title: 'Input guardrail',
+        detail: hasLiveExecution ? 'Query validated and sanitized before downstream calls.' : 'Validates and sanitizes the user query.',
+        result: hasLiveExecution ? (queryOutput.guardrail?.status || 'passed') : 'ready',
+      },
+      {
+        number: 2,
+        title: 'Synapt domain-context call',
+        detail: 'QuerySynaptAgent calls Synapt MCP ask_synapt for advisory telecom concepts and relationships.',
+        result: context.status || (hasLiveExecution ? 'unavailable' : 'ready'),
+      },
+      {
+        number: 3,
+        title: 'LLM query-planning call',
+        detail: 'The LLM receives the user query plus Synapt context and returns a structured retrieval plan.',
+        result: hasLiveExecution ? `${plannerCalled ? 'called' : 'fallback'}${queryOutput.llm_provider ? ` · ${queryOutput.llm_provider}` : ''}` : 'AICredits / fallback',
+      },
+      {
+        number: 4,
+        title: 'Historical retrieval',
+        detail: 'The plan is validated, filters are applied, and semantic plus BM25 retrieval ranks incident evidence.',
+        result: hasLiveExecution ? `${retrieval.returned_count ?? queryOutput.retrieved_incidents?.length ?? 0} records returned` : 'ChromaDB + BM25',
+      },
+      {
+        number: 5,
+        title: 'Return to orchestrator',
+        detail: 'The query agent returns Synapt context, public query plan, retrieval evidence, diagnostics, and RCA handoff.',
+        result: hasLiveExecution ? (queryOutput.answer_status || queryOutput.status || 'returned') : 'RCA handoff',
+      },
+    ];
+    return (
+      <div className="query-agent-trace">
+        <div className="query-agent-trace-header">
+          <div>
+            <strong>Query Agent Flow: Synapt → LLM → Retrieval → Return</strong>
+            <div className="query-agent-trace-subtitle">QuerySynaptAgent only; this is the focused flow before RCA and downstream agents.</div>
+          </div>
+          <StatusBadge status={hasLiveExecution ? (queryOutput.status === 'completed' ? 'success' : 'warning') : 'info'} label={hasLiveExecution ? 'Observed' : 'Reference'} size="xs" />
+        </div>
+        <div className="query-agent-steps">
+          {steps.map((step) => <div className="query-agent-step" key={step.number}>
+            <span className="query-agent-step-number">{step.number}</span>
+            <div className="query-agent-step-copy"><strong>{step.title}</strong><span>{step.detail}</span></div>
+            <code>{step.result}</code>
+          </div>)}
+        </div>
+        {hasLiveExecution && (
+          <div className="query-agent-return-grid">
+            <div><strong>Synapt returned</strong><pre>{formatOutput({ status: context.status, source: context.source, answer: context.answer })}</pre></div>
+            <div><strong>LLM planner returned</strong><pre>{formatOutput({ provider: queryOutput.llm_provider, source: queryOutput.query_plan_source, plan })}</pre></div>
+            <div><strong>Query agent returned</strong><pre>{formatOutput({ answer: queryOutput.answer, answer_status: queryOutput.answer_status, candidate_count: queryOutput.candidate_count, rca_handoff: queryOutput.rca_handoff?.status })}</pre></div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderSynaptContextLayers = (stageResult) => {
+    if (!stageResult || (stageResult.synapt_context === undefined && trace.synapt_domain_context === undefined)) return null;
+    const context = stageResult.synapt_context || trace.synapt_domain_context || {};
+    const queryPlan = stageResult.query_plan_public || stageResult.query_plan || {};
+    const retrieval = stageResult.retrieval || {};
+    const diagnostics = stageResult.filter_diagnostics || {};
+    return (
+      <div className="flow-context-layers">
+        <strong className="flow-context-title">Synapt context layers</strong>
+        <div className="flow-context-layer">
+          <span className="flow-context-label">1. Advisory domain context</span>
+          <span className="flow-context-value">{context.status || 'unavailable'} · {context.source || 'Synapt MCP ask_synapt'}</span>
+          {context.answer && <p>{context.answer}</p>}
+        </div>
+        <div className="flow-context-layer">
+          <span className="flow-context-label">2. Query-planning layer</span>
+          <span className="flow-context-value">{stageResult.query_plan_source || 'not reported'} · LLM/fallback plan</span>
+          <pre>{formatOutput(queryPlan)}</pre>
+        </div>
+        <div className="flow-context-layer">
+          <span className="flow-context-label">3. Retrieval/evidence layer</span>
+          <span className="flow-context-value">{retrieval.returned_count ?? diagnostics.numeric_candidates ?? 0} records returned</span>
+          <pre>{formatOutput({ retrieval, filter_diagnostics: diagnostics })}</pre>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
@@ -311,6 +405,7 @@ export default function AgentFlow({ isOpen, onClose, analysisResult }) {
         {/* Modal Body */}
         <div className="modal-body">
           {/* Origin Legend */}
+          {renderQueryAgentFlow()}
           <div
             style={{
               display: 'flex',
@@ -482,6 +577,7 @@ export default function AgentFlow({ isOpen, onClose, analysisResult }) {
                         <div style={{ fontSize: '11.5px', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
                           Note: {stage.details}
                         </div>
+                        {(stage.id === 'query_understanding' || stage.id === 'incident_search') && renderSynaptContextLayers(stageResult)}
                         {stageResult !== undefined && (
                           <div style={{ backgroundColor: 'var(--color-input)', padding: '8px 10px', borderRadius: '4px' }}>
                             <strong style={{ color: 'var(--color-accent)', fontSize: '11.5px', display: 'block' }}>

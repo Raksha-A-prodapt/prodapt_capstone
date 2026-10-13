@@ -16,12 +16,42 @@ function cleanSummary(text) {
     .trim();
 }
 
+const ANSWER_SECTION_HEADINGS = [
+  'Answer',
+  'RCA',
+  'Recommended Actions',
+  'Filtered Historical Evaluation',
+  'Network Predictions',
+  'Root-Cause Analysis',
+  'Historical Incident Matches',
+  'Recommendations',
+  'Incident Classification and Prioritization',
+  'Network Impact Assessment',
+];
+
+function splitAnswerSections(text) {
+  const source = String(text || '').replace(/\r/g, '').trim();
+  if (!source) return [];
+  const headingPattern = ANSWER_SECTION_HEADINGS
+    .map((heading) => heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+  const matcher = new RegExp(`(?:^|\\n)(${headingPattern})\\s*\\n`, 'g');
+  const matches = [...source.matchAll(matcher)];
+  if (!matches.length) return [{ title: 'Answer', body: source }];
+  return matches.map((match, index) => ({
+    title: match[1] === 'Root-Cause Analysis' || match[1] === 'RCA' ? 'RCA' : match[1] === 'Recommendations' || match[1] === 'Recommended Actions' ? 'Recommended Actions' : match[1],
+    body: source.slice(match.index + match[0].length, matches[index + 1]?.index || source.length).trim(),
+  })).filter((section) => section.body);
+}
+
 function SummaryText({ text }) {
   const paragraphs = cleanSummary(text).split(/\n\s*\n|\n(?=[A-Za-z][A-Za-z /&-]{2,40}:)/).filter(Boolean);
   return <div className="summary-copy">{paragraphs.map((paragraph, index) => {
     const lines = paragraph.split('\n').map((line) => line.trim()).filter(Boolean);
     const isList = lines.length > 1 && lines.every((line) => /^[-*•]\s+/.test(line));
     if (isList) return <ul key={index}>{lines.map((line) => <li key={line}>{line.replace(/^[-*•]\s+/, '')}</li>)}</ul>;
+    const highlightedHeading = paragraph.match(/^(Answer|RCA|Recommended Actions)\s*:?[ \t]*(.*)$/is);
+    if (highlightedHeading) return <p key={index}><strong>{highlightedHeading[1]}</strong>{highlightedHeading[2] ? <>: {highlightedHeading[2]}</> : null}</p>;
     const match = paragraph.match(/^([^:\n]{2,60}):\s*([\s\S]*)$/);
     return <p key={index}>{match ? <><strong>{match[1]}:</strong> {match[2]}</> : paragraph}</p>;
   })}</div>;
@@ -41,6 +71,21 @@ function PredictionSummary({ prediction, mode }) {
   const fault = prediction?.fault_risk;
   const classification = performance?.classification;
   const faultOnly = mode === 'fault_tolerance';
+  if (prediction?.status === 'historical_baseline') {
+    const metrics = prediction.baseline_metrics || performance?.average_metrics || {};
+    const labels = [
+      ['throughput_mbps', 'Average throughput', 'Mbps'],
+      ['latency_ms', 'Average latency', 'ms'],
+      ['packet_loss_rate', 'Average packet loss', '%'],
+      ['call_drop_rate', 'Average call-drop rate', '%'],
+      ['handover_success_rate', 'Average handover success', '%'],
+      ['fault_occurrence_rate', 'Average fault occurrence', '%'],
+    ];
+    return <>
+      <div className="answer-prediction-grid">{labels.filter(([key]) => metrics[key] !== undefined && metrics[key] !== null).map(([key, label, unit]) => <div className="answer-prediction-tile" key={key}><span>{label}</span><strong>{number(metrics[key])} {unit}</strong></div>)}</div>
+      <p className="muted">Historical baseline from {prediction.record_count || 0} filtered incident(s). No live telemetry was supplied, so prediction models were not run. Validate these averages against current measurements.</p>
+    </>;
+  }
   return <div className="answer-prediction-grid">
     {!faultOnly && <div className="answer-prediction-tile"><span>Network status</span><strong>{classification?.overall_risk || 'Unavailable'}</strong>{classification?.performance_score !== null && classification?.performance_score !== undefined && <small>Score {classification.performance_score}/100</small>}</div>}
     <div className="answer-prediction-tile"><span>Fault risk</span><strong>{fault?.fault_risk || 'Unavailable'}</strong>{fault?.predicted_fault_occurrence_rate_percent !== undefined && <small>{fault.predicted_fault_occurrence_rate_percent}% predicted rate</small>}{fault?.missing_features?.length > 0 && <small>Missing: {fault.missing_features.join(', ')}</small>}</div>
@@ -64,13 +109,17 @@ export default function AnalysisResults({ result }) {
   const hypotheses = Array.isArray(rca?.data?.hypotheses) ? rca.data.hypotheses : [];
   const actions = Array.isArray(recommendations?.data?.recommendations) ? recommendations.data.recommendations : [];
   const procedures = Array.isArray(recommendations?.data?.procedures) ? recommendations.data.procedures : [];
+  const diagnosticChecks = [...new Set(procedures.flatMap((procedure) => Array.isArray(procedure?.diagnostic_checks) ? procedure.diagnostic_checks : []))]
+    .filter((check) => typeof check === 'string' && check.trim())
+    .map((check) => check.trim())
+    .slice(0, 7);
   const top = hypotheses[0];
   const toggle = (key) => setExpanded((old) => ({ ...old, [key]: !old[key] }));
   const predictionData = prediction?.data || {};
   const predictionPayload = predictionData.prediction || predictionData;
-  const predictionAvailable = Boolean(predictionPayload && Object.values(predictionPayload).some((item) => item?.status === 'success' || item?.predictions || item?.predicted_fault_occurrence_rate_percent !== undefined));
+  const predictionAvailable = Boolean(predictionData?.status === 'historical_baseline' || (predictionPayload && Object.values(predictionPayload).some((item) => item?.status === 'success' || item?.predictions || item?.predicted_fault_occurrence_rate_percent !== undefined)));
   const finding = top
-    ? `Historical analysis of ${incidents.length} similar incident${incidents.length === 1 ? '' : 's'} points to ${value(top.hypothesis || top.name, 'the leading hypothesis').toLowerCase()} as the main investigation focus. ${predictionAvailable ? 'Current telemetry was available for model prediction.' : 'No current metrics were provided, so live validation and predictions were not available.'}`
+    ? `Historical analysis of ${incidents.length} similar incident${incidents.length === 1 ? '' : 's'} points to ${value(top.hypothesis || top.name, 'the leading hypothesis').toLowerCase()} as the main investigation focus. ${predictionData.status === 'historical_baseline' ? 'Current telemetry was not provided; historical averages are shown as a baseline, not a live prediction.' : predictionAvailable ? 'Current telemetry was available for model prediction.' : 'No current metrics were provided, so live validation and predictions were not available.'}`
     : (incidents.length ? `Historical analysis returned ${incidents.length} similar incident${incidents.length === 1 ? '' : 's'}. Validate the observed pattern with live network measurements.` : 'No historical evidence was returned for this query.');
   const counts = classification?.data?.historical_examples?.priority_counts || classification?.data?.priority_counts || {};
   const maxCount = Math.max(1, ...['P1', 'P2', 'P3', 'P4'].map((key) => Number(counts[key] || 0)));
@@ -84,16 +133,29 @@ export default function AnalysisResults({ result }) {
   const execution = result?.trace?.execution_statuses || {};
   const fallbackReport = result?.trace?.fallback_report || {};
   const summarySource = result?.overall_summary_source || (result?.overall_summary_status === 'success' ? 'LLM' : 'Deterministic fallback');
+  const historicalBaseline = predictionData.status === 'historical_baseline';
+  const summaryText = result?.overall_summary || result?.user_answer || result?.final_answer;
+  const answerSections = splitAnswerSections(result?.final_answer);
+  const answerBody = answerSections.find((section) => section.title === 'Answer')?.body || summaryText;
 
   return <div className="analysis-results">
     <section className="card analysis-card llm-summary-card">
       <div className="card-header"><div><div className="card-title">LLM Analysis Summary</div><div className="card-subtitle">Final answer synthesized from retrieved evidence and agent outputs</div></div><span className={`badge ${result?.overall_summary_status === 'success' ? 'badge-success' : 'badge-warning'}`}>{summarySource}</span></div>
-      <div className="llm-summary-text"><SummaryText text={result?.final_answer || result?.user_answer} />
-        {(top || incidents.length > 0 || procedures.length > 0 || currentScenario) && <div className="summary-details">
-          {top && <p><strong>Leading hypothesis:</strong> {value(top.hypothesis || top.name)}{top.score !== undefined && <> <span className="summary-highlight">(score {number(top.score)})</span></>}</p>}
-          {incidents.length > 0 && <div><strong>Historical matches:</strong><ul>{incidents.slice(0, 6).map((item, index) => { const incident = item?.incident || item || {}; return <li key={item?.incident_id || incident.incident_id || index}>{item?.incident_id || incident.incident_id || `Incident ${index + 1}`}</li>; })}</ul></div>}
-          {procedures.length > 0 && <div><strong>Recommended Actions:</strong><ul>{procedures.map((procedure, index) => <li key={index}>{value(procedure.name || procedure.title || procedure.sop_id || procedure.procedure_id, 'Procedure')}</li>)}</ul></div>}
+      <div className="llm-summary-text"><div className="summary-answer"><div className="summary-section-title">Answer</div><SummaryText text={answerBody} /></div>
+        {(answerSections.filter((section) => section.title !== 'Answer' && section.title !== 'RCA' && section.title !== 'Recommendations' && section.title !== 'Recommended Actions').length > 0 || procedures.length > 0) && <div className="summary-section-lines">
+          {answerSections.filter((section) => section.title !== 'Answer' && section.title !== 'RCA' && section.title !== 'Recommendations' && section.title !== 'Recommended Actions').map((section) => <div className="summary-section-line" key={section.title}><div className="summary-section-title">{section.title}</div><SummaryText text={section.body} /></div>)}
+          {procedures.length > 0 && <div className="summary-section-line"><div className="summary-section-title">Recommended Actions</div><SummaryText text={`Follow the relevant Synapt SOP procedures: ${procedures.map((procedure) => value(procedure.name || procedure.title || procedure.sop_id || procedure.procedure_id, 'network investigation')).join(', ')}.`} /></div>}
         </div>}
+      </div>
+      <div className="analysis-tags" aria-label="Analysis stages">
+        <StatusBadge status="success" label="Answer" />
+        <StatusBadge status={rca?.status || 'not_applicable'} label="RCA" />
+        <StatusBadge status={historicalEvaluation?.status || 'not_applicable'} label="Filtered Historical Evaluation" />
+        <StatusBadge status={historicalBaseline ? 'fallback' : predictionAvailable ? 'success' : 'not_applicable'} label={historicalBaseline ? 'Network Predictions · Historical Baseline' : 'Network Predictions'} />
+        <StatusBadge status={historical?.status || 'not_applicable'} label="Historical Incident Matches" />
+        <StatusBadge status={classification?.status || 'not_applicable'} label="Incident Classification and Prioritization" />
+        <StatusBadge status={impact?.status || 'not_applicable'} label="Network Impact Assessment" />
+        <StatusBadge status={recommendations?.status || 'not_applicable'} label="Recommended Actions" />
       </div>
       <div className="execution-strip"><span>Query planning: <strong>{execution.query_understanding || 'unknown'}</strong></span><span>Final summary: <strong>{execution.response_assembly || result?.overall_summary_status || 'unknown'}</strong></span><span>SOP: <strong>{recommendations?.data?.procedure_retrieval_called ? 'called' : recommendations?.status === 'not_requested' ? 'not requested' : 'not called'}</strong></span></div>
       {fallbackReport?.fallback_used && <div className="alert alert-warning compact-alert">A fallback was used for one or more stages. Expand the execution details in the agent flow for the reason.</div>}
@@ -134,10 +196,10 @@ export default function AnalysisResults({ result }) {
 
     <section className="card"><div className="card-header"><div><div className="card-title">Root-Cause Analysis</div><div className="card-subtitle">Ranked evidence-based hypotheses, not confirmed physical causes</div></div><StatusBadge status={rca?.status || 'not_available'} /></div><p className="analysis-text">{value(rca?.summary, 'Root-cause analysis was not available.')}</p><div className="hypothesis-list">{hypotheses.map((item, index) => <div className="hypothesis-row" key={`${item.hypothesis}-${index}`}><div className="hypothesis-heading"><strong>{item.rank || index + 1}. {value(item.hypothesis || item.name)}</strong><span>{item.score !== undefined ? number(item.score) : 'No score'}</span></div><Bar score={item.score} /><button className="link-button" onClick={() => toggle(`hypothesis-${index}`)}>{expanded[`hypothesis-${index}`] ? 'Hide Evidence' : 'View Evidence'}</button>{expanded[`hypothesis-${index}`] && <div className="evidence-grid">{item.matched_incident_id && <div><span>Matched incident</span><strong>{item.matched_incident_id}</strong></div>}<div><span>Supporting signals</span><strong>{value(item.supporting_signals || item.evidence)}</strong></div></div>}</div>)}</div></section>
 
-    {impact && <section className="card"><div className="card-header"><div><div className="card-title">Network Impact Assessment</div><div className="card-subtitle">Potential network and service effects based on telemetry and model outputs</div></div><StatusBadge status={impact?.status || 'not_available'} /></div>{Array.isArray(impact?.data?.findings) && impact.data.findings.length > 0 ? <div className="impact-list">{impact.data.findings.map((finding, index) => <div className="impact-row" key={`${finding.metric || 'impact'}-${index}`}><div className="impact-heading"><strong>{value(finding.metric, 'Network signal')}</strong>{finding.observed_value !== undefined && <span>{number(finding.observed_value)}</span>}</div><p>{value(finding.potential_impact, 'Potential service impact detected.')}</p>{finding.source && <small>Source: {finding.source}</small>}</div>)}</div> : <p className="muted">{value(impact?.summary, 'No potential impact indicators were identified.')}</p>}<p className="muted">Potential effects are not confirmed customer outcomes and do not establish root cause.</p></section>}
+    {impact && <section className="card"><div className="card-header"><div><div className="card-title">Network Impact Assessment</div><div className="card-subtitle">Potential effects based on supplied telemetry or filtered historical averages</div></div><StatusBadge status={impact?.status || 'not_available'} label={impact?.analysis_basis === 'historical_filtered_aggregate' ? 'Historical Baseline' : undefined} /></div>{Array.isArray(impact?.data?.findings) && impact.data.findings.length > 0 ? <div className="impact-list">{impact.data.findings.map((finding, index) => <div className="impact-row" key={`${finding.metric || 'impact'}-${index}`}><div className="impact-heading"><strong>{value(finding.metric, 'Network signal')}</strong>{finding.observed_value !== undefined && <span>{number(finding.observed_value)}</span>}</div><p>{value(finding.potential_impact, 'Potential service impact detected.')}</p>{finding.source && <small>Source: {finding.source}</small>}</div>)}</div> : <p className="muted">{value(impact?.summary, impact?.analysis_basis === 'historical_filtered_aggregate' ? 'The historical baseline did not cross configured impact indicators.' : 'No potential impact indicators were identified.')}</p>}<p className="muted">Potential effects are not confirmed customer outcomes and do not establish root cause. Historical-baseline findings are not current-network observations.</p></section>}
 
-    {recommendations && <section className="card"><div className="card-header"><div><div className="card-title">Recommended Actions</div><div className="card-subtitle">Actions derived from retrieved SOP procedures</div></div><StatusBadge status={recommendations?.status || 'not_available'} /></div>{procedures.length > 0 ? <div className="action-list">{procedures.map((procedure, index) => { const procedureActions = actions.filter((item) => (item.procedure_id && item.procedure_id === (procedure.sop_id || procedure.procedure_id)) || (item.procedure_name && item.procedure_name === (procedure.name || procedure.title))); return <div className="action-row" key={index}><strong>{index + 1}. {value(procedure.name || procedure.title || procedure.sop_id || procedure.procedure_id, 'Procedure')}</strong><span>{value(procedure.description || procedure.summary || procedureActions.slice(0, 2).map((item) => item.action).join(' '), 'Review the relevant network measurements, alarms, historical pattern, and escalation criteria.')}</span></div>; })}</div> : <p className="muted">{recommendations.status === 'not_requested' ? 'No troubleshooting request was detected, so SOP retrieval was skipped.' : recommendations.status === 'unavailable' ? 'SOP retrieval was requested but the Synapt procedure source was unavailable.' : 'SOP retrieval returned no procedures.'}</p>}<p className="muted">Verify prototype procedures against the authorized operational runbook before execution.</p></section>}
+    {recommendations && <section className="card"><div className="card-header"><div><div className="card-title">Recommended Actions</div><div className="card-subtitle">Actions derived from retrieved SOP procedures</div></div><StatusBadge status={recommendations?.status || 'not_available'} /></div>{diagnosticChecks.length > 0 && <div className="diagnostic-checks"><div className="subsection-title">Diagnostic Checks</div><ol>{diagnosticChecks.map((check, index) => <li key={`${check}-${index}`}>{check}</li>)}</ol></div>}{procedures.length > 0 ? <div className="action-list">{procedures.map((procedure, index) => { const procedureActions = actions.filter((item) => (item.procedure_id && item.procedure_id === (procedure.sop_id || procedure.procedure_id)) || (item.procedure_name && item.procedure_name === (procedure.name || procedure.title))); return <div className="action-row" key={index}><strong>{index + 1}. {value(procedure.name || procedure.title || procedure.sop_id || procedure.procedure_id, 'Procedure')}</strong><span>{value(procedure.description || procedure.summary || procedureActions.slice(0, 2).map((item) => item.action).join(' '), 'Review the relevant network measurements, alarms, historical pattern, and escalation criteria.')}</span></div>; })}</div> : <p className="muted">{recommendations.status === 'not_requested' ? 'No troubleshooting request was detected, so SOP retrieval was skipped.' : recommendations.status === 'unavailable' ? 'SOP retrieval was requested but the Synapt procedure source was unavailable.' : 'SOP retrieval returned no procedures.'}</p>}<p className="muted">Verify prototype procedures against the authorized operational runbook before execution.</p></section>}
 
-    {predictionAvailable && <section className="card"><div className="card-header"><div><div className="card-title">Network Prediction Results</div><div className="card-subtitle">Compact model outcomes; values are predictions</div></div><StatusBadge status={predictionData.status || prediction?.status || 'success'} /></div><PredictionSummary prediction={predictionPayload} mode={predictionData.prediction_mode} />{predictionData.prediction_mode !== 'fault_tolerance' && <ModelAgreementCard prediction={predictionPayload} />}</section>}
+    {predictionAvailable && <section className="card"><div className="card-header"><div><div className="card-title">{historicalBaseline ? 'Historical Network Baseline' : 'Network Prediction Results'}</div><div className="card-subtitle">{historicalBaseline ? 'Descriptive averages used when current telemetry is absent; live predictions require telemetry' : 'Compact model outcomes; values are predictions'}</div></div><StatusBadge status={predictionData.status || prediction?.status || 'success'} label={historicalBaseline ? 'Historical Baseline' : undefined} /></div><PredictionSummary prediction={{ ...predictionPayload, ...predictionData }} mode={predictionData.prediction_mode} />{!historicalBaseline && predictionData.prediction_mode !== 'fault_tolerance' && <ModelAgreementCard prediction={predictionPayload} />}</section>}
   </div>;
 }

@@ -106,7 +106,7 @@ class NetworkImpactAnalyzer:
         return {
             "status": "available",
             "basis": (
-                "Supplied telemetry and model outputs. Thresholds are "
+                "Supplied telemetry or metadata-filtered historical averages. Thresholds are "
                 "dataset-relative triage indicators, not telecom standards."
             ),
             "findings": findings,

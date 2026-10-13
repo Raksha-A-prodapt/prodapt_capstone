@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import json
 import logging
 import os
@@ -205,6 +206,26 @@ class TelecomAnalysisOrchestrator:
 
     @staticmethod
     def _prediction_summary(prediction: dict[str, Any]) -> str:
+        if prediction.get("status") == "historical_baseline":
+            metrics = prediction.get("baseline_metrics", {})
+            labels = {
+                "throughput_mbps": "throughput",
+                "latency_ms": "latency",
+                "packet_loss_rate": "packet loss",
+                "call_drop_rate": "call drop rate",
+                "handover_success_rate": "handover success",
+                "fault_occurrence_rate": "fault occurrence rate",
+            }
+            visible = [
+                f"average {label}: {metrics[field]}"
+                for field, label in labels.items()
+                if metrics.get(field) is not None
+            ]
+            detail = "; ".join(visible) if visible else "average KPI values are available in the evaluation data"
+            return (
+                f"Historical baseline from {prediction.get('record_count', 0)} filtered incident(s): "
+                f"{detail}. This is not a live prediction."
+            )
         values = prediction.get("prediction", {})
         summaries = []
         throughput = values.get("network_performance", {})
@@ -521,6 +542,46 @@ class TelecomAnalysisOrchestrator:
     ) -> dict[str, Any]:
         network_metrics = state.get("network_metrics")
         if not network_metrics:
+            historical = state.get("historical_evaluation_result", {})
+            if historical.get("status") == "available":
+                aggregate_metrics = historical.get("aggregate_metrics", {})
+                return {
+                    "prediction_result": {
+                        "agent": "NetworkPredictionAgent",
+                        "status": "historical_baseline",
+                        "analysis_basis": "metadata_filtered_historical_average",
+                        "reason": (
+                            "No current telemetry was provided. Historical averages "
+                            "are shown as a baseline; live prediction models were not run."
+                        ),
+                        "record_count": historical.get("record_count", 0),
+                        "baseline_metrics": aggregate_metrics,
+                        "prediction": {
+                            "network_performance": {
+                                "status": "historical_baseline",
+                                "average_metrics": aggregate_metrics,
+                            },
+                            "fault_risk": {
+                                "status": "historical_baseline",
+                                "average_fault_occurrence_rate_percent": aggregate_metrics.get(
+                                    "fault_occurrence_rate"
+                                ),
+                            },
+                        },
+                        "trace": {
+                            "models_called": [],
+                            "models_skipped": [
+                                "throughput_prediction_model",
+                                "fault_occurrence_prediction_model",
+                            ],
+                        },
+                        "limitations": [
+                            "This is a descriptive historical average, not a forecast.",
+                            "It must not be interpreted as current cell performance.",
+                            "Validate with live telemetry before operational action.",
+                        ],
+                    }
+                }
             return {
                 "prediction_result": {
                     "agent": "NetworkPredictionAgent",
@@ -542,11 +603,20 @@ class TelecomAnalysisOrchestrator:
 
         if self.prediction_agent is None:
             self.prediction_agent = NetworkPredictionAgent()
+        process_kwargs = {
+            "network_features": network_metrics,
+            "query": state["query"],
+        }
+        if "prediction_mode" in inspect.signature(
+            self.prediction_agent.process
+        ).parameters:
+            process_kwargs["prediction_mode"] = state.get(
+                "prediction_mode",
+                "network_performance",
+            )
         result = await asyncio.to_thread(
             self.prediction_agent.process,
-            network_features=network_metrics,
-            query=state["query"],
-            prediction_mode=state.get("prediction_mode", "network_performance"),
+            **process_kwargs,
         )
         return {"prediction_result": result}
 
@@ -675,6 +745,12 @@ class TelecomAnalysisOrchestrator:
                 "Potential effects estimated from metadata-filtered historical averages; "
                 "not current-network observations."
             )
+            if not impact.get("findings"):
+                impact["summary"] = (
+                    "The filtered historical baseline did not cross the configured "
+                    "dataset-relative impact indicators. This does not prove that "
+                    "current network impact is absent."
+                )
         return {
             "impact_result": impact
         }
